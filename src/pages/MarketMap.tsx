@@ -18,12 +18,12 @@ function SocialBadgeRow({ name }: { name: string }) {
   );
 }
 
-// Mock external + missing competitor mapping per segment name
-const SEGMENT_EXTERNAL: Record<string, { external: string[]; missing: string[] }> = {
-  "Climate Tech":      { external: ["Watershed", "Sweep"],    missing: ["Persefoni", "Plan A"] },
-  "Legal AI":          { external: ["Harvey", "Spellbook"],   missing: ["Ironclad", "Casetext"] },
-  "Sales Automation":  { external: ["Clay", "Apollo"],        missing: ["Common Room", "Outreach"] },
-  "DevTools":          { external: ["Sentry", "Linear"],      missing: ["Swarmia"] },
+// Mock external competitor mapping per segment name
+const SEGMENT_EXTERNAL: Record<string, { external: string[] }> = {
+  "Climate Tech":      { external: ["Watershed", "Sweep"] },
+  "Legal AI":          { external: ["Harvey", "Spellbook"] },
+  "Sales Automation":  { external: ["Clay", "Apollo"] },
+  "DevTools":          { external: ["Sentry", "Linear"] },
 };
 
 type View = "board" | "matrix" | "table";
@@ -75,7 +75,7 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
   return (
     <div className="flex gap-4 overflow-x-auto pb-2">
       {cols.map((s) => {
-        const ext = SEGMENT_EXTERNAL[s.name] ?? { external: [], missing: [] };
+        const ext = SEGMENT_EXTERNAL[s.name] ?? { external: [] };
         const pipeline = s.startups ?? [];
         return (
           <div key={s.id} className="w-80 shrink-0 rounded-xl border border-border bg-surface shadow-card">
@@ -90,7 +90,7 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
               <div className="mt-1.5 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
                 <span>Opp {s.opportunity_score}</span>
                 <span>Crowd {s.crowdedness_score}</span>
-                <span>{pipeline.length + ext.external.length + ext.missing.length} mapped</span>
+                <span>{pipeline.length + ext.external.length} mapped</span>
               </div>
             </div>
 
@@ -143,28 +143,6 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
                       <div
                         key={name}
                         className="rounded-lg border border-border bg-transparent px-3 py-1.5 text-xs font-medium text-foreground/85"
-                      >
-                        {name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Missing / suggested */}
-              {ext.missing.length > 0 && (
-                <div>
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Missing / suggested
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">{ext.missing.length}</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    {ext.missing.map((name) => (
-                      <div
-                        key={name}
-                        className="rounded-lg border border-dashed border-border bg-surface-muted/40 px-3 py-1.5 text-xs italic text-muted-foreground"
                       >
                         {name}
                       </div>

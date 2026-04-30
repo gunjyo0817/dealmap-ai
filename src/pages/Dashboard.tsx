@@ -53,15 +53,8 @@ export default function Dashboard() {
 
       <TodaysPriorities />
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatCard label="Startups" value={startups.length} hint="across your workspace" icon={<Building2 className="h-3.5 w-3.5" />} accent="accent" />
-        <StatCard label="Segments" value={segments.length} hint={`${crowded.length} crowded`} icon={<Layers className="h-3.5 w-3.5" />} accent="violet" />
-        <StatCard label="High follow-ups" value={highFollowups.length} hint="open & high priority" icon={<AlertTriangle className="h-3.5 w-3.5" />} accent="warning" />
-        <StatCard label="AI insights" value={insights.length} hint="generated this period" icon={<Sparkles className="h-3.5 w-3.5" />} accent="teal" />
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-3">
-        <div className="rounded-xl border border-border bg-surface p-5 shadow-card lg:col-span-2">
+      <div className="grid gap-5 lg:grid-cols-1">
+        <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
           <div className="mb-3 flex items-baseline justify-between">
             <h3 className="text-sm font-semibold">Deal stage pipeline</h3>
             <span className="text-xs text-muted-foreground">{startups.length} total</span>
@@ -75,43 +68,9 @@ export default function Dashboard() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-
-        <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
-          <h3 className="mb-3 text-sm font-semibold">Segment distribution</h3>
-          {segData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={segData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={75} paddingAngle={2}>
-                  {segData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12 }} />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : <div className="flex h-[220px] items-center justify-center text-xs text-muted-foreground">No data</div>}
-        </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
-        <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
-          <h3 className="mb-3 text-sm font-semibold">Follow-up priority</h3>
-          <div className="space-y-2.5">
-            {priorityData.map((p) => {
-              const total = priorityData.reduce((a, x) => a + x.count, 0) || 1;
-              const pct = (p.count / total) * 100;
-              return (
-                <div key={p.label}>
-                  <div className="mb-1 flex justify-between text-xs">
-                    <span>{p.label}</span><span className="text-muted-foreground">{p.count}</span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: p.color }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
+      <div className="grid gap-5 lg:grid-cols-1">
         <div className="rounded-xl border border-border bg-surface p-5 shadow-card lg:col-span-2">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-sm font-semibold">Recently added startups</h3>
@@ -134,25 +93,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Top market opportunities</h3>
-            <Link to="/segments" className="text-xs text-accent hover:underline">Segments</Link>
-          </div>
-          <div className="space-y-2.5">
-            {[...segments].sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0)).slice(0, 4).map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-lg border border-border bg-surface-muted px-3 py-2">
-                <div className="min-w-0">
-                  <div className="text-sm font-medium">{s.name}</div>
-                  <div className="text-xs text-muted-foreground">Opportunity {s.opportunity_score} · Crowdedness {s.crowdedness_score}</div>
-                </div>
-                <TrendBadge value={s.trend} />
-              </div>
-            ))}
-          </div>
-        </div>
-
+      <div className="grid gap-5 lg:grid-cols-1">
         <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-sm font-semibold">Recent AI insights</h3>
