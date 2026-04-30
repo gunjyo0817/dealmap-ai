@@ -1,6 +1,6 @@
-import { useStartups, useSegments, useFollowUps, useInsights, useNotes } from "@/hooks/useWorkspaceData";
+import { useStartups, useSegments, useFollowUps, useNotes } from "@/hooks/useWorkspaceData";
 import { StatCard } from "@/components/dealmap/StatCard";
-import { Building2, Layers, AlertTriangle, Sparkles, ArrowRight, Share2 } from "lucide-react";
+import { Building2, Layers, AlertTriangle, ArrowRight, Share2, Inbox } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SOCIAL_METRICS, SIGNALS } from "@/lib/social-sourcing-data";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,6 @@ export default function Dashboard() {
   const { data: startups = [] } = useStartups();
   const { data: segments = [] } = useSegments();
   const { data: followups = [] } = useFollowUps();
-  const { data: insights = [] } = useInsights();
   const { data: notes = [] } = useNotes();
 
   const highFollowups = followups.filter((f) => f.priority === "High" && f.status === "open");
@@ -57,7 +56,7 @@ export default function Dashboard() {
         <StatCard label="Startups" value={startups.length} hint="across your workspace" icon={<Building2 className="h-3.5 w-3.5" />} accent="accent" />
         <StatCard label="Segments" value={segments.length} hint={`${crowded.length} crowded`} icon={<Layers className="h-3.5 w-3.5" />} accent="violet" />
         <StatCard label="High follow-ups" value={highFollowups.length} hint="open & high priority" icon={<AlertTriangle className="h-3.5 w-3.5" />} accent="warning" />
-        <StatCard label="AI insights" value={insights.length} hint="generated this period" icon={<Sparkles className="h-3.5 w-3.5" />} accent="teal" />
+        <StatCard label="Notes" value={notes.length} hint="captured across sources" icon={<Inbox className="h-3.5 w-3.5" />} accent="teal" />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
@@ -134,41 +133,21 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Top market opportunities</h3>
-            <Link to="/segments" className="text-xs text-accent hover:underline">Segments</Link>
-          </div>
-          <div className="space-y-2.5">
-            {[...segments].sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0)).slice(0, 4).map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-lg border border-border bg-surface-muted px-3 py-2">
-                <div className="min-w-0">
-                  <div className="text-sm font-medium">{s.name}</div>
-                  <div className="text-xs text-muted-foreground">Opportunity {s.opportunity_score} · Crowdedness {s.crowdedness_score}</div>
-                </div>
-                <TrendBadge value={s.trend} />
-              </div>
-            ))}
-          </div>
+      <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold">Top market opportunities</h3>
+          <Link to="/segments" className="text-xs text-accent hover:underline">Segments</Link>
         </div>
-
-        <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Recent AI insights</h3>
-            <Link to="/insights" className="text-xs text-accent hover:underline">All insights</Link>
-          </div>
-          <div className="space-y-2.5">
-            {insights.slice(0, 4).map((i) => (
-              <div key={i.id} className="rounded-lg border border-border bg-surface-muted px-3 py-2.5">
-                <div className="mb-0.5 flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium">{i.title}</span>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{i.type.replace("_", " ")}</span>
-                </div>
-                <div className="line-clamp-2 text-xs text-muted-foreground">{i.content}</div>
+        <div className="space-y-2.5">
+          {[...segments].sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0)).slice(0, 4).map((s) => (
+            <div key={s.id} className="flex items-center justify-between rounded-lg border border-border bg-surface-muted px-3 py-2">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">{s.name}</div>
+                <div className="text-xs text-muted-foreground">Opportunity {s.opportunity_score} · Crowdedness {s.crowdedness_score}</div>
               </div>
-            ))}
-          </div>
+              <TrendBadge value={s.trend} />
+            </div>
+          ))}
         </div>
       </div>
 
