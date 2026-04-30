@@ -13,6 +13,12 @@ npm run build
 
 ## Run The App
 
+Create a local `.env` from the example and fill in the Supabase publishable key:
+
+```bash
+cp .env.example .env
+```
+
 ```bash
 npm run dev
 ```
@@ -27,7 +33,9 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 `supabase/functions/analyze-note` analyzes raw Deal Inbox notes. It uses Gemini when `GEMINI_API_KEY` is set, and falls back to the local heuristic analyzer when no key is present.
 
-Set production secrets:
+Keep Gemini keys out of the Vite `.env`. The browser only needs `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID`, and `VITE_SUPABASE_PUBLISHABLE_KEY`; Gemini belongs in Supabase Edge Function secrets.
+
+Set Supabase project secrets:
 
 ```bash
 npx supabase secrets set GEMINI_API_KEY=your_key --project-ref hljhwjqjhdweimehxqym

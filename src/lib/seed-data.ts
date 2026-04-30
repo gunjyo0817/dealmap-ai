@@ -322,13 +322,13 @@ export async function ensureGranolaDemoInbox(userId: string) {
   const titles = GRANOLA_DEMO_TRANSCRIPTS.map((n) => n.title);
   const { data: existing, error: existingErr } = await supabase
     .from("notes")
-    .select("title")
+    .select("title, status")
     .eq("user_id", userId)
     .in("title", titles);
   if (existingErr) throw existingErr;
 
-  const existingTitles = new Set((existing ?? []).map((n) => n.title));
-  const missing = GRANOLA_DEMO_TRANSCRIPTS.filter((n) => !existingTitles.has(n.title));
+  const pendingTitles = new Set((existing ?? []).filter((n) => n.status === "unprocessed").map((n) => n.title));
+  const missing = GRANOLA_DEMO_TRANSCRIPTS.filter((n) => !pendingTitles.has(n.title));
   if (!missing.length) return 0;
 
   const { error } = await supabase.from("notes").insert(
