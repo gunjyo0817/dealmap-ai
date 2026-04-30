@@ -1,6 +1,6 @@
-import { useStartups, useSegments, useFollowUps, useInsights, useNotes } from "@/hooks/useWorkspaceData";
+import { useStartups, useSegments, useFollowUps, useNotes } from "@/hooks/useWorkspaceData";
 import { StatCard } from "@/components/dealmap/StatCard";
-import { Building2, Layers, AlertTriangle, Sparkles, ArrowRight, Share2 } from "lucide-react";
+import { Building2, Layers, AlertTriangle, ArrowRight, Share2, Inbox } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SOCIAL_METRICS, SIGNALS } from "@/lib/social-sourcing-data";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,6 @@ export default function Dashboard() {
   const { data: startups = [] } = useStartups();
   const { data: segments = [] } = useSegments();
   const { data: followups = [] } = useFollowUps();
-  const { data: insights = [] } = useInsights();
   const { data: notes = [] } = useNotes();
 
   const highFollowups = followups.filter((f) => f.priority === "High" && f.status === "open");
@@ -53,8 +52,15 @@ export default function Dashboard() {
 
       <TodaysPriorities />
 
-      <div className="grid gap-5 lg:grid-cols-1">
-        <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatCard label="Startups" value={startups.length} hint="across your workspace" icon={<Building2 className="h-3.5 w-3.5" />} accent="accent" />
+        <StatCard label="Segments" value={segments.length} hint={`${crowded.length} crowded`} icon={<Layers className="h-3.5 w-3.5" />} accent="violet" />
+        <StatCard label="High follow-ups" value={highFollowups.length} hint="open & high priority" icon={<AlertTriangle className="h-3.5 w-3.5" />} accent="warning" />
+        <StatCard label="Notes" value={notes.length} hint="captured across sources" icon={<Inbox className="h-3.5 w-3.5" />} accent="teal" />
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-3">
+        <div className="rounded-xl border border-border bg-surface p-5 shadow-card lg:col-span-2">
           <div className="mb-3 flex items-baseline justify-between">
             <h3 className="text-sm font-semibold">Deal stage pipeline</h3>
             <span className="text-xs text-muted-foreground">{startups.length} total</span>
@@ -108,8 +114,9 @@ export default function Dashboard() {
                 </div>
                 <div className="line-clamp-2 text-xs text-muted-foreground">{i.content}</div>
               </div>
-            ))}
-          </div>
+              <TrendBadge value={s.trend} />
+            </div>
+          ))}
         </div>
       </div>
 
@@ -148,7 +155,7 @@ export default function Dashboard() {
       <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">Recent notes analyzed</h3>
-          <Link to="/notes" className="text-xs text-accent hover:underline">All notes</Link>
+          <Link to="/inbox" className="text-xs text-accent hover:underline">All notes</Link>
         </div>
         <div className="divide-y divide-border">
           {notes.slice(0, 5).map((n) => (
