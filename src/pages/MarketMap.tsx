@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { useSegments, useStartups } from "@/hooks/useWorkspaceData";
 import { TrendBadge, PriorityBadge, StageBadge } from "@/components/dealmap/PriorityBadge";
 import { Layers, LayoutGrid, Grid3x3, Table as TableIcon, Share2, ArrowRight } from "lucide-react";
@@ -7,6 +6,16 @@ import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { findSignalByStartupName } from "@/lib/social-sourcing-data";
 import { SocialBadge } from "@/components/dealmap/SocialBadge";
+
+function SocialBadgeRow({ name }: { name: string }) {
+  const sig = findSignalByStartupName(name);
+  if (!sig) return null;
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1">
+      {sig.badges.slice(0, 2).map((b) => <SocialBadge key={b} value={b} size="xs" />)}
+    </div>
+  );
+}
 
 type View = "board" | "matrix" | "table";
 
