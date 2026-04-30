@@ -65,7 +65,7 @@ export default function DealInbox() {
     if (!user) return;
     try {
       setBusy(id);
-      const startup = await analyzeNote(id);
+      const startup = await analyzeNote(id, user.id);
       toast.success("Analyzed", { description: `Created startup profile · ${startup.name}` });
       refresh();
     } catch (e) {

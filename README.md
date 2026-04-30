@@ -30,17 +30,17 @@ npm run dev -- --host 127.0.0.1 --port 5173
 Set production secrets:
 
 ```bash
-npx supabase secrets set GEMINI_API_KEY=your_key --project-ref mtrhovqspqbeidbyqliz
+npx supabase secrets set GEMINI_API_KEY=your_key --project-ref hljhwjqjhdweimehxqym
 ```
 
 Optional model override:
 
 ```bash
-npx supabase secrets set GEMINI_MODEL=gemini-2.5-flash --project-ref mtrhovqspqbeidbyqliz
+npx supabase secrets set GEMINI_MODEL=gemini-2.5-flash --project-ref hljhwjqjhdweimehxqym
 ```
 
 Deploy the function:
 
 ```bash
-npx supabase functions deploy analyze-note --project-ref mtrhovqspqbeidbyqliz
+npx supabase functions deploy analyze-note --project-ref hljhwjqjhdweimehxqym
 ```
