@@ -11,6 +11,16 @@ import { formatDistanceToNow } from "date-fns";
 
 const STAGE_ORDER = ["Pre-seed", "Seed", "Series A", "Series B", "Later"];
 
+function SocialMini({ label, value, sub }: { label: string; value: number; sub: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-surface px-3 py-2.5">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="mt-0.5 font-display text-xl font-normal tracking-tight">{value}</div>
+      <div className="text-[11px] text-muted-foreground">{sub}</div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { data: startups = [] } = useStartups();
   const { data: segments = [] } = useSegments();
