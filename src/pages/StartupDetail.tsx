@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { StartupSocialSection } from "@/components/dealmap/StartupSocialSection";
+import { AIRecommendation } from "@/components/dealmap/AIRecommendation";
 
 export default function StartupDetail() {
   const { id } = useParams<{ id: string }>();
@@ -121,6 +122,8 @@ export default function StartupDetail() {
           </div>
         </div>
       </div>
+
+      <AIRecommendation startupName={s.name} />
 
       {/* Middle */}
       <div className="grid gap-5 lg:grid-cols-2">
