@@ -11,6 +11,11 @@ import Dashboard from "./pages/Dashboard";
 import StartupsPage from "./pages/Startups";
 import StartupDetail from "./pages/StartupDetail";
 import Placeholder from "./pages/Placeholder";
+import DealInbox from "./pages/DealInbox";
+import MarketMap from "./pages/MarketMap";
+import Segments from "./pages/Segments";
+import Notes from "./pages/Notes";
+import Insights from "./pages/Insights";
 
 const queryClient = new QueryClient();
 
@@ -27,11 +32,11 @@ const App = () => (
               <Route path="/" element={<Dashboard />} />
               <Route path="/startups" element={<StartupsPage />} />
               <Route path="/startups/:id" element={<StartupDetail />} />
-              <Route path="/inbox" element={<Placeholder title="Deal Inbox" description="Triage imported notes and CRM records before they become startup profiles." />} />
-              <Route path="/market-map" element={<Placeholder title="Market Map" description="Visual board, table, and opportunity matrix views across all your segments." />} />
-              <Route path="/segments" element={<Placeholder title="Segments" description="Manage market categories, opportunity scores, and white-space gaps." />} />
-              <Route path="/notes" element={<Placeholder title="Notes" description="Persistent library of every note across your deal flow." />} />
-              <Route path="/insights" element={<Placeholder title="Insights" description="Saved AI insights with confidence and recommended actions." />} />
+              <Route path="/inbox" element={<DealInbox />} />
+              <Route path="/market-map" element={<MarketMap />} />
+              <Route path="/segments" element={<Segments />} />
+              <Route path="/notes" element={<Notes />} />
+              <Route path="/insights" element={<Insights />} />
               <Route path="/settings" element={<Placeholder title="Settings" description="Workspace and account preferences." />} />
             </Route>
             <Route path="*" element={<NotFound />} />
