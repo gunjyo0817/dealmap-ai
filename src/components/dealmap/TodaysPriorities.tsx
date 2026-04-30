@@ -74,7 +74,7 @@ export function TodaysPriorities() {
 
   const resolvePath = (item: PriorityItem) => {
     if (item.kind === "startup") {
-      const s = startups.find((x: any) => x.name === item.matchName);
+      const s = startups.find((x) => x.name === item.matchName);
       return s ? `/startups/${s.id}` : item.primaryFallbackPath;
     }
     // segments page lists all; deep linking not available, fall back

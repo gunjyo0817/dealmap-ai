@@ -14,14 +14,14 @@ export default function Notes() {
   const [status, setStatus] = useState("all");
   const [active, setActive] = useState<string | null>(null);
 
-  const filtered = useMemo(() => notes.filter((n: any) => {
+  const filtered = useMemo(() => notes.filter((n) => {
     if (q && !`${n.title ?? ""} ${n.raw_text}`.toLowerCase().includes(q.toLowerCase())) return false;
     if (src !== "all" && n.source !== src) return false;
     if (status !== "all" && n.status !== status) return false;
     return true;
   }), [notes, q, src, status]);
 
-  const selected = filtered.find((n: any) => n.id === active) ?? filtered[0];
+  const selected = filtered.find((n) => n.id === active) ?? filtered[0];
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-6">
@@ -61,7 +61,7 @@ export default function Notes() {
           <div className="max-h-[640px] divide-y divide-border overflow-y-auto">
             {isLoading && <div className="p-6 text-sm text-muted-foreground">Loading…</div>}
             {!isLoading && filtered.length === 0 && <div className="p-6 text-center text-sm text-muted-foreground">No notes match.</div>}
-            {filtered.map((n: any) => (
+            {filtered.map((n) => (
               <button
                 key={n.id}
                 onClick={() => setActive(n.id)}
