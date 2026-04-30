@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
-import { Activity, Users, Sparkles, Briefcase, Telescope, Leaf, Flame } from "lucide-react";
+import { Activity, Users, Sparkles, Briefcase, Telescope, Leaf, Flame, type LucideIcon } from "lucide-react";
 import type { SocialBadge as SocialBadgeType } from "@/lib/social-sourcing-data";
 
-const STYLES: Record<SocialBadgeType, { tone: string; Icon: any }> = {
+const STYLES: Record<SocialBadgeType, { tone: string; Icon: LucideIcon }> = {
   "Rising signal":            { tone: "bg-accent-soft text-accent border-accent/30",           Icon: Activity },
   "Warm intro available":     { tone: "bg-success/10 text-success border-success/30",          Icon: Users },
   "Angel activity":           { tone: "bg-violet/10 text-violet border-violet/30",             Icon: Sparkles },
