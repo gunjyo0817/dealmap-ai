@@ -207,7 +207,7 @@ export default function Dashboard() {
       <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">Recent notes analyzed</h3>
-          <Link to="/notes" className="text-xs text-accent hover:underline">All notes</Link>
+          <Link to="/inbox" className="text-xs text-accent hover:underline">All notes</Link>
         </div>
         <div className="divide-y divide-border">
           {notes.slice(0, 5).map((n) => (
