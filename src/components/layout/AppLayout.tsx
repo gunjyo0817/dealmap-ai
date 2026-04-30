@@ -16,7 +16,7 @@ export default function AppLayout() {
     seedDemoDataIfEmpty(user.id)
       .then((didSeed) => {
         setSeeded(true);
-        if (didSeed) toast.success("Demo workspace ready", { description: "Loaded 8 startups, 5 segments, and AI insights." });
+        if (didSeed) toast.success("Demo workspace ready", { description: "Loaded 8 startups, 6 segments, and AI insights." });
       })
       .catch((e) => {
         console.error(e);
