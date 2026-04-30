@@ -16,6 +16,7 @@ import MarketMap from "./pages/MarketMap";
 import Segments from "./pages/Segments";
 import Notes from "./pages/Notes";
 import Insights from "./pages/Insights";
+import SocialSourcing from "./pages/SocialSourcing";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/segments" element={<Segments />} />
               <Route path="/notes" element={<Notes />} />
               <Route path="/insights" element={<Insights />} />
+              <Route path="/social-sourcing" element={<SocialSourcing />} />
               <Route path="/settings" element={<Placeholder title="Settings" description="Workspace and account preferences." />} />
             </Route>
             <Route path="*" element={<NotFound />} />
