@@ -47,12 +47,22 @@ export default function DealInbox() {
     if (!user) return;
     try {
       setBusy(id);
-      await new Promise((r) => setTimeout(r, 900));
-      const startup = await analyzeNoteToStartup({ userId: user.id, noteId: id, rawText: raw });
-      toast.success("Analyzed", { description: `Created startup profile · ${startup.name}` });
+      const { data, error } = await supabase.functions.invoke("analyze-note", {
+        body: { noteId: id, rawText: raw },
+      });
+
+      if (error) {
+        // Keep the app usable before edge function is deployed.
+        const startup = await analyzeNoteToStartup({ userId: user.id, noteId: id, rawText: raw });
+        toast.success("Analyzed (local fallback)", { description: `Created startup profile · ${startup.name}` });
+      } else {
+        const startupName = data?.startup?.name ?? "Startup";
+        toast.success("Analyzed", { description: `Created startup profile · ${startupName}` });
+      }
       refresh();
-    } catch (e: any) {
-      toast.error(e.message ?? "Analysis failed");
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Analysis failed";
+      toast.error(message);
     } finally {
       setBusy(null);
     }
