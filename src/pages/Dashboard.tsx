@@ -8,6 +8,7 @@ import { SocialBadge } from "@/components/dealmap/SocialBadge";
 import { PriorityBadge, StageBadge, TrendBadge } from "@/components/dealmap/PriorityBadge";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { formatDistanceToNow } from "date-fns";
+import { TodaysPriorities } from "@/components/dealmap/TodaysPriorities";
 
 const STAGE_ORDER = ["Pre-seed", "Seed", "Series A", "Series B", "Later"];
 
@@ -49,6 +50,8 @@ export default function Dashboard() {
           <p className="text-sm text-muted-foreground">Overview of your deal flow intelligence.</p>
         </div>
       </div>
+
+      <TodaysPriorities />
 
       <div className="grid gap-4 md:grid-cols-4">
         <StatCard label="Startups" value={startups.length} hint="across your workspace" icon={<Building2 className="h-3.5 w-3.5" />} accent="accent" />

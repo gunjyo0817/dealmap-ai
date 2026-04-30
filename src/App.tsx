@@ -17,6 +17,7 @@ import Segments from "./pages/Segments";
 import Notes from "./pages/Notes";
 import Insights from "./pages/Insights";
 import SocialSourcing from "./pages/SocialSourcing";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -39,7 +40,7 @@ const App = () => (
               <Route path="/notes" element={<Notes />} />
               <Route path="/insights" element={<Insights />} />
               <Route path="/social-sourcing" element={<SocialSourcing />} />
-              <Route path="/settings" element={<Placeholder title="Settings" description="Workspace and account preferences." />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

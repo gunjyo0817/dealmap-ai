@@ -17,6 +17,14 @@ function SocialBadgeRow({ name }: { name: string }) {
   );
 }
 
+// Mock external + missing competitor mapping per segment name
+const SEGMENT_EXTERNAL: Record<string, { external: string[]; missing: string[] }> = {
+  "Climate Tech":      { external: ["Watershed", "Sweep"],    missing: ["Persefoni", "Plan A"] },
+  "Legal AI":          { external: ["Harvey", "Spellbook"],   missing: ["Ironclad", "Casetext"] },
+  "Sales Automation":  { external: ["Clay", "Apollo"],        missing: ["Common Room", "Outreach"] },
+  "DevTools":          { external: ["Sentry", "Linear"],      missing: ["Swarmia"] },
+};
+
 type View = "board" | "matrix" | "table";
 
 export default function MarketMap() {
@@ -65,40 +73,108 @@ function BoardView({ segments, unsegmented }: { segments: any[]; unsegmented: an
   const cols = [...segments];
   return (
     <div className="flex gap-4 overflow-x-auto pb-2">
-      {cols.map((s) => (
-        <div key={s.id} className="w-72 shrink-0 rounded-xl border border-border bg-surface shadow-card">
-          <div className="border-b border-border p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm font-semibold">{s.name}</span>
+      {cols.map((s) => {
+        const ext = SEGMENT_EXTERNAL[s.name] ?? { external: [], missing: [] };
+        const pipeline = s.startups ?? [];
+        return (
+          <div key={s.id} className="w-80 shrink-0 rounded-xl border border-border bg-surface shadow-card">
+            <div className="border-b border-border p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-sm font-semibold">{s.name}</span>
+                </div>
+                <TrendBadge value={s.trend} />
               </div>
-              <TrendBadge value={s.trend} />
+              <div className="mt-1.5 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
+                <span>Opp {s.opportunity_score}</span>
+                <span>Crowd {s.crowdedness_score}</span>
+                <span>{pipeline.length + ext.external.length + ext.missing.length} mapped</span>
+              </div>
             </div>
-            <div className="mt-1.5 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
-              <span>Opp {s.opportunity_score}</span>
-              <span>Crowd {s.crowdedness_score}</span>
-              <span>{s.startups?.length ?? 0} startups</span>
+
+            <div className="space-y-3 p-3">
+              {/* Our pipeline */}
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-accent">
+                    Our pipeline
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">{pipeline.length}</span>
+                </div>
+                <div className="space-y-2">
+                  {pipeline.length === 0 && (
+                    <div className="rounded-md border border-dashed border-border p-2 text-center text-[11px] text-muted-foreground">
+                      No startups in pipeline
+                    </div>
+                  )}
+                  {pipeline.map((st: any) => (
+                    <Link
+                      key={st.id}
+                      to={`/startups/${st.id}`}
+                      className="block rounded-lg border border-accent/40 bg-accent-soft/40 px-3 py-2 transition hover:border-accent"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="truncate text-sm font-medium">{st.name}</span>
+                        <PriorityBadge value={st.priority} />
+                      </div>
+                      <div className="mt-1 flex items-center justify-between">
+                        <StageBadge value={st.stage} />
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{st.status}</span>
+                      </div>
+                      <SocialBadgeRow name={st.name} />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* External competitors */}
+              {ext.external.length > 0 && (
+                <div>
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      External competitors
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">{ext.external.length}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {ext.external.map((name) => (
+                      <div
+                        key={name}
+                        className="rounded-lg border border-border bg-transparent px-3 py-1.5 text-xs font-medium text-foreground/85"
+                      >
+                        {name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Missing / suggested */}
+              {ext.missing.length > 0 && (
+                <div>
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Missing / suggested
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">{ext.missing.length}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {ext.missing.map((name) => (
+                      <div
+                        key={name}
+                        className="rounded-lg border border-dashed border-border bg-surface-muted/40 px-3 py-1.5 text-xs italic text-muted-foreground"
+                      >
+                        {name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-          <div className="space-y-2 p-3">
-            {(s.startups ?? []).length === 0 && <div className="rounded-md border border-dashed border-border p-3 text-center text-[11px] text-muted-foreground">No startups yet</div>}
-            {(s.startups ?? []).map((st: any) => (
-              <Link key={st.id} to={`/startups/${st.id}`} className="block rounded-lg border border-border bg-surface-muted px-3 py-2 transition hover:border-border-strong">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="truncate text-sm font-medium">{st.name}</span>
-                  <PriorityBadge value={st.priority} />
-                </div>
-                <div className="mt-1 flex items-center justify-between">
-                  <StageBadge value={st.stage} />
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{st.status}</span>
-                </div>
-                <SocialBadgeRow name={st.name} />
-              </Link>
-            ))}
-          </div>
-        </div>
-      ))}
+        );
+      })}
       {unsegmented.length > 0 && (
         <div className="w-72 shrink-0 rounded-xl border border-dashed border-border bg-surface/60 shadow-card">
           <div className="border-b border-border p-3">

@@ -9,6 +9,15 @@ import {
 import { Activity, Users, Briefcase, Network, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
+const SIGNAL_SOURCE_LABELS: Record<string, string[]> = {
+  sig_lexflow: ["CRM notes", "Meeting transcript", "Demo investor network"],
+  sig_pitchpilot: ["Manual relationship", "Demo investor network"],
+  sig_carbongrid: ["Meeting transcript", "Demo investor network"],
+};
+function sourceLabelsFor(id: string): string[] {
+  return SIGNAL_SOURCE_LABELS[id] ?? ["CRM notes", "Demo investor network"];
+}
+
 export default function SocialSourcing() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
@@ -19,6 +28,9 @@ export default function SocialSourcing() {
             <span className="rounded-full border border-border bg-surface-muted px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">Demo social graph</span>
           </div>
           <p className="text-sm text-muted-foreground">Relationship intelligence — detect founders gaining angel, micro fund and accelerator attention.</p>
+          <p className="mt-1 max-w-3xl text-xs text-muted-foreground">
+            Signals are derived from CRM notes, meeting transcripts, manually added relationships, and demo investor network data.
+          </p>
         </div>
       </header>
 
@@ -51,6 +63,16 @@ export default function SocialSourcing() {
                       <span>Type: <span className="font-medium text-foreground">{sig.signal_type}</span></span>
                       <span>· Source: {sig.signal_source}</span>
                       <span>· Detected {formatDistanceToNow(new Date(sig.detected_at), { addSuffix: true })}</span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {sourceLabelsFor(sig.id).map((lbl) => (
+                        <span
+                          key={lbl}
+                          className="rounded-md border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                        >
+                          {lbl}
+                        </span>
+                      ))}
                     </div>
                   </div>
                   <div className="text-right">
