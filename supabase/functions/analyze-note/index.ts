@@ -19,6 +19,11 @@ type SegmentOption = {
   name: string;
 };
 
+type ExistingStartup = {
+  id: string;
+  name: string;
+};
+
 type NoteRow = {
   id: string;
   raw_text: string;
@@ -37,6 +42,7 @@ type GeminiResponse = {
 };
 
 type LlmAnalysis = {
+  matchedStartupId: string;
   startup: {
     name: string;
     founder: string;
@@ -71,6 +77,7 @@ type LlmAnalysis = {
 };
 
 type NormalizedAnalysis = {
+  matchedStartupId: string | null;
   provider: "gemini" | "heuristic";
   model: string;
   segmentId: string | null;
@@ -127,6 +134,7 @@ const STAGE_HINTS: Array<[RegExp, Stage]> = [
 const responseSchema = {
   type: "OBJECT",
   properties: {
+    matchedStartupId: { type: "STRING" },
     startup: {
       type: "OBJECT",
       properties: {
@@ -190,8 +198,8 @@ const responseSchema = {
       propertyOrdering: ["type", "title", "content", "confidenceScore", "recommendedAction"],
     },
   },
-  required: ["startup", "analysis", "followups", "competitors", "insight"],
-  propertyOrdering: ["startup", "analysis", "followups", "competitors", "insight"],
+  required: ["matchedStartupId", "startup", "analysis", "followups", "competitors", "insight"],
+  propertyOrdering: ["matchedStartupId", "startup", "analysis", "followups", "competitors", "insight"],
 };
 
 function json(body: unknown, status = 200) {
@@ -342,6 +350,9 @@ function normalizeAnalysis(
   const stage = normalizeStage(raw.startup?.stage, rawText);
   const priority = normalizePriority(raw.startup?.priority, rawText);
   const segmentId = segmentIdForName(asText(raw.startup?.segmentName, "", 120), segments) ?? guessSegment(rawText, segments);
+  const matchedStartupId = typeof raw.matchedStartupId === "string" && raw.matchedStartupId.trim()
+    ? raw.matchedStartupId.trim()
+    : null;
   const risks = priority === "Low"
     ? ["Crowded competitive set", "Differentiation unclear"]
     : ["Early customer concentration", "GTM strategy not yet validated"];
@@ -371,6 +382,7 @@ function normalizeAnalysis(
     : [];
 
   return {
+    matchedStartupId,
     provider,
     model,
     segmentId,
@@ -419,14 +431,25 @@ function normalizeAnalysis(
   };
 }
 
-function heuristicAnalysis(rawText: string, segments: SegmentOption[]): NormalizedAnalysis {
+function heuristicMatchStartup(name: string, existingStartups: ExistingStartup[]): string | null {
+  const lowerName = name.toLowerCase().trim();
+  if (!lowerName) return null;
+  return existingStartups.find((s) => {
+    const sn = s.name.toLowerCase().trim();
+    return sn === lowerName || sn.includes(lowerName) || lowerName.includes(sn);
+  })?.id ?? null;
+}
+
+function heuristicAnalysis(rawText: string, segments: SegmentOption[], existingStartups: ExistingStartup[]): NormalizedAnalysis {
   const name = guessName(rawText);
   const priority = guessPriority(rawText);
   const segmentId = guessSegment(rawText, segments);
   const segmentName = segments.find((segment) => segment.id === segmentId)?.name ?? "";
   const competitors = heuristicCompetitors(rawText);
+  const matchedId = heuristicMatchStartup(name, existingStartups);
 
   return normalizeAnalysis({
+    matchedStartupId: matchedId ?? "",
     startup: {
       name,
       founder: guessFounder(rawText),
@@ -465,7 +488,7 @@ function heuristicAnalysis(rawText: string, segments: SegmentOption[]): Normaliz
   }, rawText, segments, "heuristic", "local-heuristic");
 }
 
-async function analyzeWithGemini(rawText: string, segments: SegmentOption[]) {
+async function analyzeWithGemini(rawText: string, segments: SegmentOption[], existingStartups: ExistingStartup[]) {
   const apiKey = Deno.env.get("GEMINI_API_KEY");
   if (!apiKey) return null;
 
@@ -473,6 +496,10 @@ async function analyzeWithGemini(rawText: string, segments: SegmentOption[]) {
   const segmentList = segments.length
     ? segments.map((segment) => `- ${segment.name}`).join("\n")
     : "- No existing segment";
+
+  const startupList = existingStartups.length
+    ? existingStartups.map((s) => `- ID: ${s.id} | Name: ${s.name}`).join("\n")
+    : "- None";
 
   const prompt = [
     "You are a VC deal-flow analyst.",
@@ -483,6 +510,12 @@ async function analyzeWithGemini(rawText: string, segments: SegmentOption[]) {
     "",
     "Existing segments:",
     segmentList,
+    "",
+    "Existing startups already in our CRM (ID | Name):",
+    startupList,
+    "",
+    "If the transcript is about one of the existing startups above, set matchedStartupId to that startup's exact ID.",
+    "If the company in the transcript is NOT in the list above, set matchedStartupId to an empty string.",
     "",
     "Raw note:",
     rawText,
@@ -554,49 +587,99 @@ Deno.serve(async (req) => {
 
     if (segmentsError) throw segmentsError;
 
+    const { data: existingStartupsData, error: existingStartupsError } = await supabase
+      .from("startups")
+      .select("id, name")
+      .eq("user_id", authData.user.id);
+
+    if (existingStartupsError) throw existingStartupsError;
+
     const segmentOptions = (segments ?? []) as SegmentOption[];
+    const existingStartupOptions = (existingStartupsData ?? []) as ExistingStartup[];
+
     let analysis = null as NormalizedAnalysis | null;
 
     try {
-      analysis = await analyzeWithGemini(note.raw_text, segmentOptions);
+      analysis = await analyzeWithGemini(note.raw_text, segmentOptions, existingStartupOptions);
     } catch (geminiError) {
       console.error(geminiError);
     }
 
-    analysis ??= heuristicAnalysis(note.raw_text, segmentOptions);
+    analysis ??= heuristicAnalysis(note.raw_text, segmentOptions, existingStartupOptions);
 
-    const { data: startup, error: startupError } = await supabase
-      .from("startups")
-      .insert({
-        user_id: authData.user.id,
-        name: analysis.startup.name,
-        founder: analysis.startup.founder,
-        stage: analysis.startup.stage,
-        priority: analysis.startup.priority,
-        segment_id: analysis.segmentId,
-        status: "First call completed",
-        source: note.source,
-        summary: analysis.startup.summary,
-        differentiation: analysis.startup.differentiation,
-        target_customer: analysis.startup.targetCustomer,
-        last_interaction_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+    // Validate matchedStartupId against actual DB records to prevent hallucination
+    const validatedMatchId = analysis.matchedStartupId &&
+      existingStartupOptions.some((s) => s.id === analysis!.matchedStartupId)
+      ? analysis.matchedStartupId
+      : null;
 
-    if (startupError) throw startupError;
+    let startup: Record<string, unknown>;
+    let isNew: boolean;
 
+    if (validatedMatchId) {
+      // UPDATE existing startup with fresh data from transcript
+      const { data: updatedStartup, error: updateError } = await supabase
+        .from("startups")
+        .update({
+          name: analysis.startup.name,
+          founder: analysis.startup.founder,
+          stage: analysis.startup.stage,
+          priority: analysis.startup.priority,
+          ...(analysis.segmentId ? { segment_id: analysis.segmentId } : {}),
+          summary: analysis.startup.summary,
+          differentiation: analysis.startup.differentiation,
+          target_customer: analysis.startup.targetCustomer,
+          last_interaction_at: new Date().toISOString(),
+        })
+        .eq("id", validatedMatchId)
+        .eq("user_id", authData.user.id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+      startup = updatedStartup as Record<string, unknown>;
+      isNew = false;
+    } else {
+      // INSERT new startup
+      const { data: newStartup, error: startupError } = await supabase
+        .from("startups")
+        .insert({
+          user_id: authData.user.id,
+          name: analysis.startup.name,
+          founder: analysis.startup.founder,
+          stage: analysis.startup.stage,
+          priority: analysis.startup.priority,
+          segment_id: analysis.segmentId,
+          status: "First call completed",
+          source: note.source,
+          summary: analysis.startup.summary,
+          differentiation: analysis.startup.differentiation,
+          target_customer: analysis.startup.targetCustomer,
+          last_interaction_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (startupError) throw startupError;
+      startup = newStartup as Record<string, unknown>;
+      isNew = true;
+    }
+
+    const startupId = startup.id as string;
+
+    // Link note to startup and mark analyzed
     const { error: noteUpdateError } = await supabase
       .from("notes")
-      .update({ startup_id: startup.id, status: "analyzed" })
+      .update({ startup_id: startupId, status: "analyzed" })
       .eq("id", note.id)
       .eq("user_id", authData.user.id);
 
     if (noteUpdateError) throw noteUpdateError;
 
+    // Insert new analysis entry
     const { error: analysisError } = await supabase.from("analyses").insert({
       user_id: authData.user.id,
-      startup_id: startup.id,
+      startup_id: startupId,
       note_id: note.id,
       ai_summary: analysis.analysis.summary,
       risk_signals: analysis.analysis.riskSignals,
@@ -605,10 +688,11 @@ Deno.serve(async (req) => {
 
     if (analysisError) throw analysisError;
 
+    // Insert new follow-up questions
     const { error: followupError } = await supabase.from("follow_up_questions").insert(
       analysis.followups.map((followup) => ({
         user_id: authData.user.id,
-        startup_id: startup.id,
+        startup_id: startupId,
         priority: followup.priority,
         question: followup.question,
       })),
@@ -616,23 +700,42 @@ Deno.serve(async (req) => {
 
     if (followupError) throw followupError;
 
+    // Insert competitors, deduplicating by name when updating an existing startup
     if (analysis.competitors.length) {
-      const { error: competitorError } = await supabase.from("competitors").insert(
-        analysis.competitors.map((competitor) => ({
-          user_id: authData.user.id,
-          startup_id: startup.id,
-          name: competitor.name,
-          relationship_type: competitor.relationshipType,
-          description: competitor.description,
-        })),
-      );
+      let competitorsToInsert = analysis.competitors;
 
-      if (competitorError) throw competitorError;
+      if (!isNew) {
+        const { data: existingCompetitors } = await supabase
+          .from("competitors")
+          .select("name")
+          .eq("startup_id", startupId)
+          .eq("user_id", authData.user.id);
+
+        const existingNames = new Set(
+          (existingCompetitors ?? []).map((c: { name: string }) => c.name.toLowerCase()),
+        );
+        competitorsToInsert = analysis.competitors.filter((c) => !existingNames.has(c.name.toLowerCase()));
+      }
+
+      if (competitorsToInsert.length) {
+        const { error: competitorError } = await supabase.from("competitors").insert(
+          competitorsToInsert.map((competitor) => ({
+            user_id: authData.user.id,
+            startup_id: startupId,
+            name: competitor.name,
+            relationship_type: competitor.relationshipType,
+            description: competitor.description,
+          })),
+        );
+
+        if (competitorError) throw competitorError;
+      }
     }
 
+    // Insert new insight
     const { error: insightError } = await supabase.from("insights").insert({
       user_id: authData.user.id,
-      startup_id: startup.id,
+      startup_id: startupId,
       segment_id: analysis.segmentId,
       type: analysis.insight.type,
       title: analysis.insight.title,
@@ -647,6 +750,7 @@ Deno.serve(async (req) => {
       startup,
       provider: analysis.provider,
       model: analysis.model,
+      isNew,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Analysis failed";
