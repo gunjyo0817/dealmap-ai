@@ -33,7 +33,7 @@ export default function Dashboard() {
   const crowded = segments.filter((s) => (s.crowdedness_score ?? 0) >= 70);
 
   const stageData = STAGE_ORDER.map((s) => ({ stage: s, count: startups.filter((x) => x.stage === s).length }));
-  const segData = segments.map((s) => ({ name: s.name, value: s.startups?.length ?? 0 }));
+  const segData = segments.map((s) => ({ name: s.name, value: (s.startups as any[])?.length ?? 0 }));
   const PIE_COLORS = ["hsl(var(--accent))", "hsl(var(--violet))", "hsl(var(--teal))", "hsl(var(--warning))", "hsl(var(--success))"];
 
   const priorityData = [
@@ -122,7 +122,7 @@ export default function Dashboard() {
               <Link key={s.id} to={`/startups/${s.id}`} className="flex items-center justify-between py-2.5 hover:bg-surface-muted -mx-2 px-2 rounded">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium">{s.name}</div>
-                  <div className="truncate text-xs text-muted-foreground">{s.segment?.name ?? "Unsegmented"} · {s.founder ?? "—"}</div>
+                  <div className="truncate text-xs text-muted-foreground">{(s.segment as any)?.name ?? "Unsegmented"} · {s.founder ?? "—"}</div>
                 </div>
                 <div className="flex items-center gap-2">
                   <StageBadge value={s.stage} />
@@ -214,7 +214,7 @@ export default function Dashboard() {
             <div key={n.id} className="flex items-center justify-between py-2.5">
               <div className="min-w-0">
                 <div className="truncate text-sm">{n.title ?? "Untitled note"}</div>
-                <div className="truncate text-xs text-muted-foreground">{n.startup?.name ?? "Unassigned"} · {n.source}</div>
+                <div className="truncate text-xs text-muted-foreground">{(n.startup as any)?.name ?? "Unassigned"} · {n.source}</div>
               </div>
               <div className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}</div>
             </div>

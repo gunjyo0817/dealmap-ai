@@ -88,7 +88,7 @@ export default function StartupsPage() {
                 <td className="px-4 py-3">
                   <Link to={`/startups/${s.id}`} className="font-medium text-foreground hover:text-accent">{s.name}</Link>
                 </td>
-                <td className="px-4 py-3 text-muted-foreground">{s.segment?.name ?? "—"}</td>
+                <td className="px-4 py-3 text-muted-foreground">{(s.segment as any)?.name ?? "—"}</td>
                 <td className="px-4 py-3"><StageBadge value={s.stage} /></td>
                 <td className="px-4 py-3 text-muted-foreground">{s.founder ?? "—"}</td>
                 <td className="px-4 py-3 text-muted-foreground truncate max-w-[180px]">{s.target_customer ?? "—"}</td>

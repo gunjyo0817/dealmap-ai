@@ -16,7 +16,7 @@ export default function Segments() {
       {isLoading && <div className="text-sm text-muted-foreground">Loading…</div>}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {segments.map((s) => {
+        {segments.map((s: any) => {
           const whitespace = s.opportunity_score >= 70 && s.crowdedness_score < 60;
           return (
             <article key={s.id} className="rounded-xl border border-border bg-surface p-5 shadow-card">
@@ -48,7 +48,7 @@ export default function Segments() {
                   <span>{s.startups?.length ?? 0}</span>
                 </div>
                 <div className="space-y-1.5">
-                  {(s.startups ?? []).slice(0, 5).map((st) => (
+                  {(s.startups ?? []).slice(0, 5).map((st: any) => (
                     <Link key={st.id} to={`/startups/${st.id}`} className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-surface-muted">
                       <span>{st.name}</span>
                       <PriorityBadge value={st.priority} />

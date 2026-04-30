@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { findSignalByStartupName } from "@/lib/social-sourcing-data";
 import { SocialBadge } from "@/components/dealmap/SocialBadge";
-import type { SegmentWithStartups, StartupWithSegment } from "@/lib/workspace-types";
 
 function SocialBadgeRow({ name }: { name: string }) {
   const sig = findSignalByStartupName(name);
@@ -33,7 +32,7 @@ export default function MarketMap() {
   const { data: startups = [] } = useStartups();
   const [view, setView] = useState<View>("board");
 
-  const unsegmented = useMemo(() => startups.filter((s) => !s.segment_id), [startups]);
+  const unsegmented = useMemo(() => startups.filter((s: any) => !s.segment_id), [startups]);
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-6">
@@ -70,7 +69,7 @@ export default function MarketMap() {
   );
 }
 
-function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[]; unsegmented: StartupWithSegment[] }) {
+function BoardView({ segments, unsegmented }: { segments: any[]; unsegmented: any[] }) {
   const cols = [...segments];
   return (
     <div className="flex gap-4 overflow-x-auto pb-2">
@@ -109,7 +108,7 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
                       No startups in pipeline
                     </div>
                   )}
-                  {pipeline.map((st) => (
+                  {pipeline.map((st: any) => (
                     <Link
                       key={st.id}
                       to={`/startups/${st.id}`}
@@ -183,7 +182,7 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
             <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">{unsegmented.length} startups</div>
           </div>
           <div className="space-y-2 p-3">
-            {unsegmented.map((st) => (
+            {unsegmented.map((st: any) => (
               <Link key={st.id} to={`/startups/${st.id}`} className="block rounded-lg border border-border bg-surface-muted px-3 py-2">
                 <span className="text-sm font-medium">{st.name}</span>
               </Link>
@@ -195,7 +194,7 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
   );
 }
 
-function MatrixView({ segments }: { segments: SegmentWithStartups[] }) {
+function MatrixView({ segments }: { segments: any[] }) {
   // X = crowdedness, Y = opportunity (inverted so high opp is up)
   return (
     <div className="rounded-xl border border-border bg-surface p-6 shadow-card">
@@ -247,7 +246,7 @@ function MatrixView({ segments }: { segments: SegmentWithStartups[] }) {
   );
 }
 
-function TableView({ segments }: { segments: SegmentWithStartups[] }) {
+function TableView({ segments }: { segments: any[] }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-card">
       <table className="w-full text-sm">

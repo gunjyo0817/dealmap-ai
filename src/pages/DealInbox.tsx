@@ -9,7 +9,7 @@ import { Sparkles, Inbox, CheckCircle2, X, FileText, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
-import { analyzeNote } from "@/lib/analyze-note";
+import { analyzeNoteToStartup } from "@/lib/mock-analyze";
 
 export default function DealInbox() {
   const { user } = useAuth();
@@ -18,8 +18,8 @@ export default function DealInbox() {
   const [pasted, setPasted] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
 
-  const inbox = useMemo(() => notes.filter((n) => n.status === "unprocessed"), [notes]);
-  const recentlyTriaged = useMemo(() => notes.filter((n) => n.status === "analyzed").slice(0, 6), [notes]);
+  const inbox = useMemo(() => notes.filter((n: any) => n.status === "unprocessed"), [notes]);
+  const recentlyTriaged = useMemo(() => notes.filter((n: any) => n.status === "analyzed").slice(0, 6), [notes]);
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["notes"] });
@@ -43,15 +43,16 @@ export default function DealInbox() {
     refresh();
   };
 
-  const analyze = async (id: string) => {
+  const analyze = async (id: string, raw: string) => {
     if (!user) return;
     try {
       setBusy(id);
-      const startup = await analyzeNote(id);
+      await new Promise((r) => setTimeout(r, 900));
+      const startup = await analyzeNoteToStartup({ userId: user.id, noteId: id, rawText: raw });
       toast.success("Analyzed", { description: `Created startup profile · ${startup.name}` });
       refresh();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Analysis failed");
+    } catch (e: any) {
+      toast.error(e.message ?? "Analysis failed");
     } finally {
       setBusy(null);
     }
@@ -92,7 +93,7 @@ export default function DealInbox() {
               Nothing in your inbox. Paste a note above or import from CRM.
             </div>
           )}
-          {inbox.map((n) => (
+          {inbox.map((n: any) => (
             <article key={n.id} className="rounded-xl border border-border bg-surface p-5 shadow-card">
               <header className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -105,7 +106,7 @@ export default function DealInbox() {
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
                   <Button size="sm" variant="outline" onClick={() => dismiss(n.id)} className="gap-1"><X className="h-3.5 w-3.5" /> Dismiss</Button>
-                  <Button size="sm" disabled={busy === n.id} onClick={() => analyze(n.id)} className="gap-1.5">
+                  <Button size="sm" disabled={busy === n.id} onClick={() => analyze(n.id, n.raw_text)} className="gap-1.5">
                     <Sparkles className="h-3.5 w-3.5" /> {busy === n.id ? "Analyzing…" : "Analyze"}
                   </Button>
                 </div>
@@ -120,7 +121,7 @@ export default function DealInbox() {
         <section>
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recently triaged</h2>
           <div className="divide-y divide-border rounded-xl border border-border bg-surface shadow-card">
-            {recentlyTriaged.map((n) => (
+            {recentlyTriaged.map((n: any) => (
               <Link key={n.id} to={n.startup?.id ? `/startups/${n.startup.id}` : "/notes"} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-surface-muted">
                 <div className="flex min-w-0 items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-success" />
