@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
-import { StatCard } from "@/components/dealmap/StatCard";
 import { SocialBadge } from "@/components/dealmap/SocialBadge";
 import { SocialGraph } from "@/components/dealmap/SocialGraph";
 import { PathChain } from "@/components/dealmap/StartupSocialSection";
 import {
-  SIGNALS, INTRO_PATHS, RISING_ALERTS, SOCIAL_METRICS,
+  SIGNALS, INTRO_PATHS, RISING_ALERTS,
 } from "@/lib/social-sourcing-data";
-import { Activity, Users, Briefcase, Network, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
+import { Network, TrendingUp, ArrowRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 const SIGNAL_SOURCE_LABELS: Record<string, string[]> = {
@@ -34,16 +33,10 @@ export default function SocialSourcing() {
         </div>
       </header>
 
-      {/* 1. Overview cards */}
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-        <StatCard label="New founder signals" value={SOCIAL_METRICS.new_founder_signals} hint="detected" icon={<Activity className="h-3.5 w-3.5" />} accent="accent" />
-        <StatCard label="Angel connections" value={SOCIAL_METRICS.angel_connections_week} hint="this week" icon={<Sparkles className="h-3.5 w-3.5" />} accent="violet" />
-        <StatCard label="Micro fund interactions" value={SOCIAL_METRICS.micro_fund_interactions} hint="last 7 days" icon={<Briefcase className="h-3.5 w-3.5" />} accent="warning" />
-        <StatCard label="Warm intro paths" value={SOCIAL_METRICS.warm_intro_paths} hint="found" icon={<Users className="h-3.5 w-3.5" />} accent="teal" />
-        <StatCard label="Rising in network" value={SOCIAL_METRICS.rising_network_startups} hint="startups gaining activity" icon={<TrendingUp className="h-3.5 w-3.5" />} accent="accent" />
-      </div>
+      {/* 1. Social Graph */}
+      <SocialGraph height={480} />
 
-      {/* 2. Signal feed + 5. Rising alerts */}
+      {/* 2. Signal feed + 4. Rising alerts */}
       <div className="grid gap-5 lg:grid-cols-3">
         <section className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
@@ -119,10 +112,7 @@ export default function SocialSourcing() {
         </aside>
       </div>
 
-      {/* 3. Social Graph */}
-      <SocialGraph height={480} />
-
-      {/* 4. Warm intro paths */}
+      {/* 3. Warm intro paths */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-1.5 text-sm font-semibold"><Network className="h-4 w-4 text-violet" /> Warm intro paths</h2>
