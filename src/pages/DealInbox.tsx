@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { analyzeNote } from "@/lib/analyze-note";
+import { ensureGranolaDemoInbox } from "@/lib/seed-data";
 
 export default function DealInbox() {
   const { user } = useAuth();
@@ -17,6 +18,7 @@ export default function DealInbox() {
   const { data: notes = [] } = useNotes();
   const [pasted, setPasted] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [loadingDemo, setLoadingDemo] = useState(false);
 
   const inbox = useMemo(() => notes.filter((n) => n.status === "unprocessed"), [notes]);
   const recentlyTriaged = useMemo(() => notes.filter((n) => n.status === "analyzed").slice(0, 6), [notes]);
@@ -41,6 +43,22 @@ export default function DealInbox() {
     setPasted("");
     toast.success("Added to inbox");
     refresh();
+  };
+
+  const loadDemoCalls = async () => {
+    if (!user) return;
+    try {
+      setLoadingDemo(true);
+      const inserted = await ensureGranolaDemoInbox(user.id);
+      toast.success(inserted ? "Granola demo calls loaded" : "Demo calls already loaded", {
+        description: inserted ? `${inserted} founder transcripts added to triage.` : "Open a pending call and run Analyze.",
+      });
+      refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not load demo calls");
+    } finally {
+      setLoadingDemo(false);
+    }
   };
 
   const analyze = async (id: string) => {
@@ -75,6 +93,22 @@ export default function DealInbox() {
           <Inbox className="h-3.5 w-3.5" /> {inbox.length} to triage
         </div>
       </div>
+
+      <section className="rounded-xl border border-accent/25 bg-accent-soft/40 p-5 shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-1.5 text-sm font-semibold">
+              <Sparkles className="h-4 w-4 text-accent" /> Two-minute demo flow
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Load Granola-style founder call transcripts, analyze one, then open the generated startup profile to review why now, risks, follow-ups, competitors, and next action.
+            </p>
+          </div>
+          <Button onClick={loadDemoCalls} disabled={loadingDemo} className="gap-1.5">
+            <FileText className="h-3.5 w-3.5" /> {loadingDemo ? "Loading…" : "Load Granola calls"}
+          </Button>
+        </div>
+      </section>
 
       <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
         <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold"><Plus className="h-4 w-4" /> Paste a note or transcript</div>
