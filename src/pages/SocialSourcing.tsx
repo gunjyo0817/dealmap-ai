@@ -9,6 +9,15 @@ import {
 import { Activity, Users, Briefcase, Network, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
+const SIGNAL_SOURCE_LABELS: Record<string, string[]> = {
+  sig_lexflow: ["CRM notes", "Meeting transcript", "Demo investor network"],
+  sig_pitchpilot: ["Manual relationship", "Demo investor network"],
+  sig_carbongrid: ["Meeting transcript", "Demo investor network"],
+};
+function sourceLabelsFor(id: string): string[] {
+  return SIGNAL_SOURCE_LABELS[id] ?? ["CRM notes", "Demo investor network"];
+}
+
 export default function SocialSourcing() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
