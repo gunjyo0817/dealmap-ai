@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,7 +11,6 @@ import Dashboard from "./pages/Dashboard";
 import StartupsPage from "./pages/Startups";
 import StartupDetail from "./pages/StartupDetail";
 import Placeholder from "./pages/Placeholder";
-import DealInbox from "./pages/DealInbox";
 import MarketMap from "./pages/MarketMap";
 import Segments from "./pages/Segments";
 import Notes from "./pages/Notes";
@@ -34,10 +33,10 @@ const App = () => (
               <Route path="/" element={<Dashboard />} />
               <Route path="/startups" element={<StartupsPage />} />
               <Route path="/startups/:id" element={<StartupDetail />} />
-              <Route path="/inbox" element={<DealInbox />} />
+              <Route path="/inbox" element={<Notes />} />
               <Route path="/market-map" element={<MarketMap />} />
               <Route path="/segments" element={<Segments />} />
-              <Route path="/notes" element={<Notes />} />
+              <Route path="/notes" element={<Navigate to="/inbox" replace />} />
               <Route path="/insights" element={<Insights />} />
               <Route path="/social-sourcing" element={<SocialSourcing />} />
               <Route path="/settings" element={<Settings />} />

@@ -1,14 +1,23 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotes } from "@/hooks/useWorkspaceData";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatDistanceToNow } from "date-fns";
-import { FileText, Search } from "lucide-react";
+import { FileText, Plus, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function Notes() {
+  const { user } = useAuth();
+  const qc = useQueryClient();
   const { data: notes = [], isLoading } = useNotes();
+  const [pasted, setPasted] = useState("");
   const [q, setQ] = useState("");
   const [src, setSrc] = useState("all");
   const [status, setStatus] = useState("all");
@@ -23,11 +32,41 @@ export default function Notes() {
 
   const selected = filtered.find((n) => n.id === active) ?? filtered[0];
 
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["notes"] });
+    qc.invalidateQueries({ queryKey: ["startups"] });
+    qc.invalidateQueries({ queryKey: ["insights"] });
+    qc.invalidateQueries({ queryKey: ["followups"] });
+  };
+
+  const addPasted = async () => {
+    if (!pasted.trim() || !user) return;
+    const { error } = await supabase.from("notes").insert({
+      user_id: user.id,
+      source: "manual" as const,
+      title: `Pasted note · ${new Date().toLocaleDateString()}`,
+      raw_text: pasted.trim(),
+      status: "unprocessed" as const,
+    });
+    if (error) return toast.error(error.message);
+    setPasted("");
+    toast.success("Added transcript");
+    refresh();
+  };
+
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-6">
       <div>
         <h1 className="font-display text-3xl font-normal tracking-tight">Notes</h1>
-        <p className="text-sm text-muted-foreground">Persistent library of every note across your deal flow.</p>
+        <p className="text-sm text-muted-foreground">Deal inbox and persistent library of every note across your deal flow.</p>
+      </div>
+
+      <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
+        <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold"><Plus className="h-4 w-4" /> Add transcript</div>
+        <Textarea rows={4} value={pasted} onChange={(e) => setPasted(e.target.value)} placeholder="Paste meeting notes, call transcript, or forwarded intro..." />
+        <div className="mt-2 flex justify-end">
+          <Button size="sm" onClick={addPasted} disabled={!pasted.trim()}>Send to inbox</Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

@@ -1,15 +1,14 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Inbox, Network, Building2, Layers, FileText, Sparkles, Settings, Share2 } from "lucide-react";
+import { LayoutDashboard, Inbox, Network, Building2, Layers, Sparkles, Settings, Share2 } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Deal Inbox", url: "/inbox", icon: Inbox },
+  { title: "Notes", url: "/inbox", icon: Inbox },
   { title: "Market Map", url: "/market-map", icon: Network },
   { title: "Social Sourcing", url: "/social-sourcing", icon: Share2 },
   { title: "Startups", url: "/startups", icon: Building2 },
   { title: "Segments", url: "/segments", icon: Layers },
-  { title: "Notes", url: "/notes", icon: FileText },
   { title: "Insights", url: "/insights", icon: Sparkles },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
