@@ -14,7 +14,6 @@ import Placeholder from "./pages/Placeholder";
 import MarketMap from "./pages/MarketMap";
 import Segments from "./pages/Segments";
 import Notes from "./pages/Notes";
-import Insights from "./pages/Insights";
 import SocialSourcing from "./pages/SocialSourcing";
 import Settings from "./pages/Settings";
 
@@ -37,7 +36,6 @@ const App = () => (
               <Route path="/market-map" element={<MarketMap />} />
               <Route path="/segments" element={<Segments />} />
               <Route path="/notes" element={<Navigate to="/inbox" replace />} />
-              <Route path="/insights" element={<Insights />} />
               <Route path="/social-sourcing" element={<SocialSourcing />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
