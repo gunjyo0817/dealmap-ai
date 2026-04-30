@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { PriorityBadge, StageBadge, StatusBadge } from "@/components/dealmap/PriorityBadge";
-import { ArrowLeft, Sparkles, Plus, AlertTriangle, Lightbulb, MessageSquare } from "lucide-react";
+import { ArrowLeft, Sparkles, Plus, AlertTriangle, Lightbulb, MessageSquare, CheckCircle2, ArrowRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,6 +47,21 @@ export default function StartupDetail() {
   if (!data?.startup) return <div className="p-6 text-sm text-muted-foreground">Startup not found.</div>;
   const s = data.startup;
   const segment = s.segment as { id: string; name: string; trend: string | null } | null;
+  const latestAnalysis = data.analyses[0];
+  const topInsight = data.insights[0];
+  const risks = (latestAnalysis?.risk_signals ?? []) as string[];
+  const opportunities = (latestAnalysis?.opportunity_signals ?? []) as string[];
+  const highPriorityQuestions = data.followups.filter((f) => f.priority === "High" && f.status === "open");
+  const whyNow =
+    topInsight?.content ??
+    (segment?.trend
+      ? `${segment.name} is marked ${segment.trend.toLowerCase()}, making timing and wedge validation the key diligence question.`
+      : s.summary ?? "Review the latest call notes to validate timing.");
+  const nextAction =
+    topInsight?.recommended_action ??
+    (s.priority === "High"
+      ? "Schedule a partner review and validate the highest-risk assumption."
+      : "Keep tracking and ask sharper diligence questions before partner review.");
 
   const addNote = async () => {
     if (!newNote.trim() || !user) return;
@@ -123,6 +138,45 @@ export default function StartupDetail() {
           </div>
         </div>
       </div>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-card">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 text-accent" /> Why now
+          </div>
+          <p className="mt-2 line-clamp-5 text-sm leading-relaxed text-foreground/85">{whyNow}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-card">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <CheckCircle2 className="h-3.5 w-3.5 text-success" /> What we like
+          </div>
+          <ul className="mt-2 space-y-1.5 text-sm text-foreground/85">
+            {(opportunities.length ? opportunities : [s.differentiation ?? "Differentiation needs review"]).slice(0, 3).map((item) => (
+              <li key={item} className="leading-relaxed">· {item}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-card">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <AlertTriangle className="h-3.5 w-3.5 text-warning" /> Risks to validate
+          </div>
+          <ul className="mt-2 space-y-1.5 text-sm text-foreground/85">
+            {(risks.length ? risks : highPriorityQuestions.map((q) => q.question)).slice(0, 3).map((item) => (
+              <li key={item} className="leading-relaxed">· {item}</li>
+            ))}
+            {!risks.length && highPriorityQuestions.length === 0 && <li>· No major risks captured yet.</li>}
+          </ul>
+        </div>
+        <div className="rounded-xl border border-accent/25 bg-accent-soft/35 p-4 shadow-card">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-accent">
+            <ArrowRight className="h-3.5 w-3.5" /> Next action
+          </div>
+          <p className="mt-2 text-sm font-medium leading-relaxed text-foreground">{nextAction}</p>
+          <div className="mt-3 text-xs text-muted-foreground">
+            {highPriorityQuestions.length} high-priority questions open · {data.competitors.length} competitors mapped
+          </div>
+        </div>
+      </section>
 
       <AIRecommendation startupName={s.name} />
 

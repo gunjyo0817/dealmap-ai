@@ -97,6 +97,110 @@ const INSIGHTS: Array<{
   { type: "follow_up", title: "3 high-priority follow-ups overdue", content: "LexFlow, CarbonGrid, ClariMed each have unanswered High-priority questions.", confidence_score: 95, recommended_action: "Schedule founder calls this week." },
 ];
 
+export const GRANOLA_DEMO_TRANSCRIPTS = [
+  {
+    source: "granola" as const,
+    title: "Granola transcript - NorthBeam founder call",
+    raw_text: `NorthBeam founder call
+Source: Granola
+Company: NorthBeam
+Founder: Jonas Richter
+Stage: Seed
+Segment: Climate Tech
+
+Alex: Thanks for joining. Give us the crisp version of NorthBeam.
+Jonas: NorthBeam builds grid-edge battery optimization software for European utilities and large commercial storage operators. We predict congestion windows, dispatch batteries automatically, and produce audit-ready reports for grid operators.
+
+Alex: What's live today?
+Jonas: Two paid pilots in the Netherlands, one unpaid pilot with a German municipal utility, and EUR 18k MRR from the first commercial deployment. The early ROI is a 7-11% uplift in battery revenue and fewer manual dispatch overrides.
+
+Maya: Why now?
+Jonas: More renewables are creating grid volatility, utilities are under pressure to defer capex, and the EU flexibility market is finally opening. The software budget is moving from innovation teams into grid operations.
+
+Alex: Who do you compete with?
+Jonas: FlexPower and KrakenFlex show up. They are broader VPP platforms. Our wedge is grid-edge optimization for utilities that already own or control storage assets.
+
+Maya: What worries us?
+Jonas: Sales cycles are long. We need to prove the wedge is software budget, not a consulting motion. Also integration with utility SCADA systems can slow deployment.
+
+Alex: Next step?
+Jonas: We'd like introductions to two DACH utilities and feedback on whether we should raise EUR 2.5m now or after the German pilot converts.`,
+  },
+  {
+    source: "granola" as const,
+    title: "Granola transcript - RubricAI intro call",
+    raw_text: `RubricAI intro call
+Source: Granola
+Company: RubricAI
+Founder: Maya Desai
+Stage: Pre-seed
+Segment: Vertical AI
+
+Alex: What are you building?
+Maya: RubricAI helps K-12 teachers grade open-ended assignments with AI. We generate rubric-aligned feedback, show evidence for each score, and let teachers edit before posting to Google Classroom.
+
+Maya: We have 420 teachers using the free product, 38 paying teachers at $19 per month, and two school districts evaluating a paid pilot. The founders previously scaled assessment products at an edtech company.
+
+Alex: What is the wedge?
+Maya: We are not trying to be a full LMS. We start with English and social studies writing assignments where teachers spend 5-7 hours a week grading. Our model is tuned on teacher-edited feedback, not generic essay scoring.
+
+Alex: Market concern?
+Maya: Procurement can be slow, student privacy requirements are real, and Google or Canvas could bundle similar features. We need to show bottoms-up teacher adoption can convert into district contracts.
+
+Maya: Next call should dig into privacy architecture, teacher retention, and whether we can own the workflow before incumbents move.`,
+  },
+  {
+    source: "granola" as const,
+    title: "Granola transcript - Stratify partner screen",
+    raw_text: `Stratify partner screen
+Source: Granola
+Company: Stratify
+Founder: Lina Hofmann
+Stage: Seed
+Segment: Sales Automation
+
+Alex: Summarize Stratify.
+Lina: Stratify analyzes sales call recordings and turns them into coaching plans for frontline managers. We plug into Gong and Zoom, identify missed discovery moments, and generate manager-ready coaching snippets.
+
+Alex: Traction?
+Lina: Six design partners, two converted to paid at $4k ACV, and 11 more teams in trial. The best users are mid-market sales managers with 8-15 reps.
+
+Maya: Sales automation is very crowded. Why does this win?
+Lina: Gong is system-of-record, not coaching workflow. We focus on manager behavior change, weekly coaching rituals, and rep-specific improvement plans.
+
+Alex: Risks?
+Maya: This may be a feature inside Gong or Chorus. ACVs look low for the sales motion. We need proof that managers come back weekly and that the coaching loop changes rep performance.
+
+Lina: Next step is to share retention cohorts and manager engagement by team size.`,
+  },
+] satisfies Array<{ source: "granola"; title: string; raw_text: string }>;
+
+export async function ensureGranolaDemoInbox(userId: string) {
+  const titles = GRANOLA_DEMO_TRANSCRIPTS.map((n) => n.title);
+  const { data: existing, error: existingErr } = await supabase
+    .from("notes")
+    .select("title")
+    .eq("user_id", userId)
+    .in("title", titles);
+  if (existingErr) throw existingErr;
+
+  const existingTitles = new Set((existing ?? []).map((n) => n.title));
+  const missing = GRANOLA_DEMO_TRANSCRIPTS.filter((n) => !existingTitles.has(n.title));
+  if (!missing.length) return 0;
+
+  const { error } = await supabase.from("notes").insert(
+    missing.map((n) => ({
+      user_id: userId,
+      source: n.source,
+      title: n.title,
+      raw_text: n.raw_text,
+      status: "unprocessed" as const,
+    })),
+  );
+  if (error) throw error;
+  return missing.length;
+}
+
 export async function seedDemoDataIfEmpty(userId: string) {
   const { count } = await supabase.from("startups").select("id", { count: "exact", head: true }).eq("user_id", userId);
   if ((count ?? 0) > 0) return false;
@@ -174,30 +278,8 @@ export async function seedDemoDataIfEmpty(userId: string) {
   }));
   await supabase.from("analyses").insert(analysisRows);
 
-  // Inbox: a couple of unprocessed notes (no startup yet) to triage
-  await supabase.from("notes").insert([
-    {
-      user_id: userId,
-      source: "granola" as const,
-      title: "Intro call — NorthBeam (climate)",
-      raw_text: "Met Jonas from NorthBeam. They build grid-edge battery optimization software for European utilities. Founder ex-Tesla Energy. 2 paid pilots in NL. Concerned about long sales cycles. Could fit Climate Tech segment.",
-      status: "unprocessed" as const,
-    },
-    {
-      user_id: userId,
-      source: "hubspot" as const,
-      title: "Inbound — RubricAI",
-      raw_text: "RubricAI is a vertical AI tool for K-12 teachers to grade open-ended assignments. Bottoms-up adoption, $19/seat. Founders are 2x edtech operators. New segment for us — adjacent to Vertical Healthcare AI thesis.",
-      status: "unprocessed" as const,
-    },
-    {
-      user_id: userId,
-      source: "manual" as const,
-      title: "Cold inbound — Stratify",
-      raw_text: "Stratify is building AI sales coaching from call recordings. Sales Automation segment is crowded. Need to assess if voice-native is enough of a wedge vs Gong incumbents.",
-      status: "unprocessed" as const,
-    },
-  ]);
+  // Inbox: Granola-style VC call transcripts to triage during the demo.
+  await ensureGranolaDemoInbox(userId);
 
   return true;
 }

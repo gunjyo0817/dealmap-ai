@@ -202,8 +202,19 @@ function json(body: unknown, status = 200) {
 }
 
 function guessName(text: string) {
+  const company = text.match(/^Company:\s*(.+)$/im)?.[1]?.trim();
+  if (company) return company.slice(0, 120);
+  const callTitle = text.match(/^([A-Z][a-zA-Z0-9]+(?:[A-Z][a-zA-Z0-9]+)?)\s+(?:founder|intro|partner)/im)?.[1];
+  if (callTitle) return callTitle;
   const match = text.match(/\b([A-Z][a-zA-Z0-9]{2,}(?:[A-Z][a-zA-Z0-9]+)?)\b/);
   return match?.[1] ?? "New Startup";
+}
+
+function guessFounder(text: string) {
+  const founder = text.match(/^Founder:\s*(.+)$/im)?.[1]?.trim();
+  if (founder) return founder.slice(0, 120);
+  const from = text.match(/\b(?:met|spoke with|joined by)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i)?.[1];
+  return from ?? "";
 }
 
 function guessStage(text: string): Stage {
@@ -215,7 +226,7 @@ function guessStage(text: string): Stage {
 
 function guessPriority(text: string): Priority {
   if (/crowded|saturat|pass/i.test(text)) return "Low";
-  if (/strong|exciting|tailwind|founder.?market fit|unique/i.test(text)) return "High";
+  if (/strong|exciting|tailwind|founder.?market fit|unique|paid pilot|commercial deployment|roi|why now/i.test(text)) return "High";
   return "Medium";
 }
 
@@ -233,6 +244,36 @@ function guessSegment(text: string, segments: SegmentOption[]) {
     if (pattern?.test(text)) return segment.id;
   }
   return null;
+}
+
+function targetCustomerFor(segmentName: string) {
+  const map: Record<string, string> = {
+    "Legal AI": "Legal teams and law firms",
+    "Sales Automation": "B2B sales managers and revenue teams",
+    "Climate Tech": "European utilities and industrial operators",
+    DevTools: "Engineering and platform teams",
+    "Vertical Healthcare AI": "Specialty healthcare operators",
+  };
+  return map[segmentName] ?? "TBD - extract on next call";
+}
+
+function heuristicCompetitors(rawText: string) {
+  const candidates = [
+    ["FlexPower", "Direct", "Mentioned as a broader VPP/grid flexibility platform."],
+    ["KrakenFlex", "Direct", "Mentioned as a broader VPP platform with adjacent utility workflows."],
+    ["Google Classroom", "Adjacent", "Could bundle grading and classroom workflow features."],
+    ["Canvas", "Adjacent", "Learning management incumbent that could bundle AI grading."],
+    ["Gong", "Direct", "Sales call system-of-record that may absorb coaching workflows."],
+    ["Chorus", "Direct", "Sales conversation intelligence incumbent."],
+    ["Harvey", "Direct", "Legal AI incumbent with strong enterprise distribution."],
+    ["Clay", "Direct", "Sales automation and enrichment competitor."],
+    ["Apollo", "Direct", "Sales database and sequencing incumbent."],
+  ];
+
+  return candidates
+    .filter(([name]) => rawText.toLowerCase().includes(name.toLowerCase()))
+    .map(([name, relationshipType, description]) => ({ name, relationshipType, description }))
+    .slice(0, 5);
 }
 
 function asText(value: unknown, fallback: string, max = 400) {
@@ -383,15 +424,17 @@ function heuristicAnalysis(rawText: string, segments: SegmentOption[]): Normaliz
   const name = guessName(rawText);
   const priority = guessPriority(rawText);
   const segmentId = guessSegment(rawText, segments);
+  const segmentName = segments.find((segment) => segment.id === segmentId)?.name ?? "";
+  const competitors = heuristicCompetitors(rawText);
 
   return normalizeAnalysis({
     startup: {
       name,
-      founder: "",
+      founder: guessFounder(rawText),
       stage: guessStage(rawText),
       priority,
-      segmentName: segments.find((segment) => segment.id === segmentId)?.name ?? "",
-      targetCustomer: "TBD - extract on next call",
+      segmentName,
+      targetCustomer: targetCustomerFor(segmentName),
       summary: rawText.slice(0, 220),
       differentiation: priority === "High"
         ? "Strong founder-market fit; clear wedge in segment."
@@ -410,7 +453,7 @@ function heuristicAnalysis(rawText: string, segments: SegmentOption[]): Normaliz
       { priority: "High", question: `What is ${name}'s defensible moat in this segment?` },
       { priority: "Medium", question: "Who are the first 10 paying customers and what's the NRR?" },
     ],
-    competitors: [],
+    competitors,
     insight: {
       type: priority === "Low" ? "crowded_market" : "whitespace",
       title: priority === "Low" ? `${name} sits in a crowded market` : `${name} fits a high-opportunity wedge`,
