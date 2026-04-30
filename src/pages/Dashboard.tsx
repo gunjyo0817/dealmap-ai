@@ -1,26 +1,13 @@
 import { useStartups, useSegments, useFollowUps, useInsights, useNotes } from "@/hooks/useWorkspaceData";
 import { StatCard } from "@/components/dealmap/StatCard";
-import { Building2, Layers, AlertTriangle, ArrowRight, Share2, Inbox } from "lucide-react";
+import { Building2, Layers, AlertTriangle, ArrowRight, Inbox } from "lucide-react";
 import { Link } from "react-router-dom";
-import { SOCIAL_METRICS, SIGNALS } from "@/lib/social-sourcing-data";
-import { Button } from "@/components/ui/button";
-import { SocialBadge } from "@/components/dealmap/SocialBadge";
 import { PriorityBadge, StageBadge, TrendBadge } from "@/components/dealmap/PriorityBadge";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { formatDistanceToNow } from "date-fns";
 import { TodaysPriorities } from "@/components/dealmap/TodaysPriorities";
 
 const STAGE_ORDER = ["Pre-seed", "Seed", "Series A", "Series B", "Later"];
-
-function SocialMini({ label, value, sub }: { label: string; value: number; sub: string }) {
-  return (
-    <div className="rounded-lg border border-border bg-surface px-3 py-2.5">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="mt-0.5 font-display text-xl font-normal tracking-tight">{value}</div>
-      <div className="text-[11px] text-muted-foreground">{sub}</div>
-    </div>
-  );
-}
 
 export default function Dashboard() {
   const { data: startups = [] } = useStartups();
@@ -110,38 +97,6 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Social Sourcing alerts */}
-      <div className="rounded-xl border border-border bg-gradient-to-br from-accent-soft/50 to-violet-soft/40 p-5 shadow-card">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-soft text-violet"><Share2 className="h-3.5 w-3.5" /></div>
-            <div>
-              <h3 className="text-sm font-semibold">Social Sourcing alerts</h3>
-              <div className="text-[11px] text-muted-foreground">Demo social graph · CRM-derived relationship signals</div>
-            </div>
-          </div>
-          <Link to="/social-sourcing"><Button size="sm" variant="outline" className="gap-1.5">View Social Sourcing <ArrowRight className="h-3 w-3" /></Button></Link>
-        </div>
-        <div className="grid gap-3 md:grid-cols-3">
-          <SocialMini label="High-signal founders" value={3} sub="across 2 segments" />
-          <SocialMini label="Warm intro paths" value={SOCIAL_METRICS.warm_intro_paths} sub="ready to request" />
-          <SocialMini label="Gaining angel attention" value={1} sub="LexFlow this week" />
-        </div>
-        <div className="mt-3 space-y-2">
-          {SIGNALS.slice(0, 3).map((s) => (
-            <Link key={s.id} to="/social-sourcing" className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2 hover:border-border-strong">
-              <div className="min-w-0">
-                <div className="text-sm font-medium">{s.startup_name} <span className="text-xs text-muted-foreground">· {s.founder_name}</span></div>
-                <div className="text-[11px] text-muted-foreground">{s.why_it_matters}</div>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {s.badges.slice(0, 2).map((b) => <SocialBadge key={b} value={b} size="xs" />)}
-              </div>
-            </Link>
-          ))}
         </div>
       </div>
 

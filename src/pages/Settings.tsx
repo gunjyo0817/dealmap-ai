@@ -94,7 +94,6 @@ export default function Settings() {
   // AI prefs
   const [ai, setAi] = useState({
     depth: "Standard",
-    socialSignals: true,
     externalCompetitors: true,
     followUps: true,
     recommendations: true,
@@ -103,7 +102,6 @@ export default function Settings() {
   // Notifications
   const [notif, setNotif] = useState({
     highPriority: true,
-    socialSignals: true,
     crowdedness: false,
     missingCompetitors: true,
   });
@@ -230,12 +228,6 @@ export default function Settings() {
             </Select>
           </Field>
           <ToggleRow
-            label="Include social sourcing signals"
-            description="Use the demo social graph when generating recommendations."
-            value={ai.socialSignals}
-            onChange={(v) => setAi({ ...ai, socialSignals: v })}
-          />
-          <ToggleRow
             label="Include external competitors"
             description="Map external incumbents alongside your pipeline."
             value={ai.externalCompetitors}
@@ -293,7 +285,6 @@ export default function Settings() {
       <Section icon={Bell} title="Notification preferences" description="What DealMap AI alerts you about.">
         <div className="space-y-3">
           <ToggleRow label="High-priority follow-up reminders" value={notif.highPriority} onChange={(v) => setNotif({ ...notif, highPriority: v })} />
-          <ToggleRow label="New social sourcing signals" value={notif.socialSignals} onChange={(v) => setNotif({ ...notif, socialSignals: v })} />
           <ToggleRow label="Segment crowdedness alerts" value={notif.crowdedness} onChange={(v) => setNotif({ ...notif, crowdedness: v })} />
           <ToggleRow label="Missing competitor alerts" value={notif.missingCompetitors} onChange={(v) => setNotif({ ...notif, missingCompetitors: v })} />
         </div>
