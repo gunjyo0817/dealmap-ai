@@ -174,5 +174,30 @@ export async function seedDemoDataIfEmpty(userId: string) {
   }));
   await supabase.from("analyses").insert(analysisRows);
 
+  // Inbox: a couple of unprocessed notes (no startup yet) to triage
+  await supabase.from("notes").insert([
+    {
+      user_id: userId,
+      source: "granola" as const,
+      title: "Intro call — NorthBeam (climate)",
+      raw_text: "Met Jonas from NorthBeam. They build grid-edge battery optimization software for European utilities. Founder ex-Tesla Energy. 2 paid pilots in NL. Concerned about long sales cycles. Could fit Climate Tech segment.",
+      status: "unprocessed" as const,
+    },
+    {
+      user_id: userId,
+      source: "hubspot" as const,
+      title: "Inbound — RubricAI",
+      raw_text: "RubricAI is a vertical AI tool for K-12 teachers to grade open-ended assignments. Bottoms-up adoption, $19/seat. Founders are 2x edtech operators. New segment for us — adjacent to Vertical Healthcare AI thesis.",
+      status: "unprocessed" as const,
+    },
+    {
+      user_id: userId,
+      source: "manual" as const,
+      title: "Cold inbound — Stratify",
+      raw_text: "Stratify is building AI sales coaching from call recordings. Sales Automation segment is crowded. Need to assess if voice-native is enough of a wedge vs Gong incumbents.",
+      status: "unprocessed" as const,
+    },
+  ]);
+
   return true;
 }
