@@ -226,7 +226,7 @@ function guessStage(text: string): Stage {
 
 function guessPriority(text: string): Priority {
   if (/crowded|saturat|pass/i.test(text)) return "Low";
-  if (/strong|exciting|tailwind|founder.?market fit|unique|paid pilot|commercial deployment|roi|why now/i.test(text)) return "High";
+  if (/strong|exciting|tailwind|founder.?market fit|unique/i.test(text)) return "High";
   return "Medium";
 }
 
@@ -238,7 +238,6 @@ function guessSegment(text: string, segments: SegmentOption[]) {
     DevTools: /devtool|developer|engineering|observab|platform/i,
     "Vertical Healthcare AI": /clinic|health|medical|pharma|patient/i,
   };
-
   for (const segment of segments) {
     const pattern = map[segment.name];
     if (pattern?.test(text)) return segment.id;
