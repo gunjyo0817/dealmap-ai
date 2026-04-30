@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type {
+  FollowUpWithStartup,
+  InsightWithRelations,
+  NoteWithStartup,
+  SegmentWithStartups,
+  StartupWithSegment,
+} from "@/lib/workspace-types";
 
 export function useStartups() {
   const { user } = useAuth();
@@ -13,7 +20,7 @@ export function useStartups() {
         .select("*, segment:market_segments(id, name, trend)")
         .order("last_interaction_at", { ascending: false, nullsFirst: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as StartupWithSegment[];
     },
   });
 }
@@ -29,7 +36,7 @@ export function useSegments() {
         .select("*, startups(id, name, stage, priority, status)")
         .order("opportunity_score", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as SegmentWithStartups[];
     },
   });
 }
@@ -45,7 +52,7 @@ export function useNotes() {
         .select("*, startup:startups(id, name)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as NoteWithStartup[];
     },
   });
 }
@@ -61,7 +68,7 @@ export function useInsights() {
         .select("*, startup:startups(id, name), segment:market_segments(id, name)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as InsightWithRelations[];
     },
   });
 }
@@ -77,7 +84,7 @@ export function useFollowUps() {
         .select("*, startup:startups(id, name)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as FollowUpWithStartup[];
     },
   });
 }

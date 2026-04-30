@@ -27,11 +27,11 @@ export default function Insights() {
   const { data: insights = [] } = useInsights();
   const [type, setType] = useState<string>("all");
 
-  const filtered = useMemo(() => insights.filter((i: any) => type === "all" || i.type === type), [insights, type]);
+  const filtered = useMemo(() => insights.filter((i) => type === "all" || i.type === type), [insights, type]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
-    insights.forEach((i: any) => { c[i.type] = (c[i.type] ?? 0) + 1; });
+    insights.forEach((i) => { c[i.type] = (c[i.type] ?? 0) + 1; });
     return c;
   }, [insights]);
 
@@ -78,7 +78,7 @@ export default function Insights() {
 
       <div className="grid gap-3">
         {filtered.length === 0 && <div className="rounded-xl border border-dashed border-border bg-surface p-10 text-center text-sm text-muted-foreground">No insights match this filter.</div>}
-        {filtered.map((i: any) => (
+        {filtered.map((i) => (
           <article key={i.id} className="rounded-xl border border-border bg-surface p-5 shadow-card">
             <header className="flex items-start justify-between gap-3">
               <div className="min-w-0">

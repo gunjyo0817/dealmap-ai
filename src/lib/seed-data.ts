@@ -6,6 +6,7 @@ const SEGMENTS = [
   { name: "Climate Tech", description: "Industrial energy monitoring and CSRD-driven carbon reporting. Strong tailwind from EU regulation.", crowdedness_score: 42, opportunity_score: 84, trend: "Emerging" },
   { name: "DevTools", description: "Developer observability and AI-assisted code intelligence. White-space in mid-market team workflows.", crowdedness_score: 35, opportunity_score: 78, trend: "White-space" },
   { name: "Vertical Healthcare AI", description: "AI-native workflow tools for clinics, pharma ops, and diagnostics. Long sales cycles but durable contracts.", crowdedness_score: 48, opportunity_score: 81, trend: "Emerging" },
+  { name: "Finance Automation", description: "AI-native finance operations, close automation, reconciliation, and cross-system reporting for modern SaaS teams.", crowdedness_score: 58, opportunity_score: 79, trend: "Emerging" },
 ];
 
 type Stage = "Pre-seed" | "Seed" | "Series A";
@@ -97,6 +98,252 @@ const INSIGHTS: Array<{
   { type: "follow_up", title: "3 high-priority follow-ups overdue", content: "LexFlow, CarbonGrid, ClariMed each have unanswered High-priority questions.", confidence_score: 95, recommended_action: "Schedule founder calls this week." },
 ];
 
+export const GRANOLA_DEMO_TRANSCRIPTS = [
+  {
+    source: "granola" as const,
+    title: "Granola transcript - MedScribe AI founder call",
+    raw_text: `VC Call Transcript - MedScribe AI
+Source: Granola
+Company: MedScribe AI
+Founder: Maya Patel
+Stage: Seed
+Segment: Vertical Healthcare AI
+
+Participants:
+- Investor: Rachel, Associate at Northstar Ventures
+- Founder: Maya Patel, CEO of MedScribe AI
+
+Rachel: Thanks for taking the time today, Maya. To start, can you give me the quick version of what MedScribe AI does?
+Maya: Of course. MedScribe AI is an AI scribe for outpatient clinics. We listen to the doctor-patient conversation, generate structured clinical notes, and push those notes directly into the EHR. Our goal is to reduce the amount of time doctors spend on documentation after clinic hours.
+
+Rachel: Why outpatient clinics specifically?
+Maya: We started there because outpatient doctors see a very high volume of patients, but they usually don't have the same administrative support as large hospital systems. A lot of physicians spend two to three hours every evening finishing notes. That burnout problem is very real.
+
+Rachel: What does the workflow look like for the doctor?
+Maya: The doctor starts the visit, opens our app, and records the conversation with patient consent. After the visit, MedScribe generates a SOAP note, diagnosis summary, and follow-up plan. The doctor can review and edit it, then send it into the EHR. We currently support Athena and are building deeper Epic integration.
+
+Rachel: Got it. Where are you in terms of traction?
+Maya: We are live with 12 outpatient clinics. Eight are paying customers and four are in pilots. We are currently at about $42k in MRR. Usage has been strong. Doctors are saving around six hours per week on average.
+
+Rachel: How long have the paid customers been active?
+Maya: The oldest paid customer has been with us for five months. Most of the others converted in the last two months, so retention data is still early. But we haven't had any churn yet.
+
+Rachel: What is the pricing model?
+Maya: We charge per provider per month. Our average contract is around $550 per provider per month. Larger clinics get volume discounts.
+
+Rachel: This is obviously a crowded space. How do you think about differentiation?
+Maya: Yes, AI scribe is crowded. Our differentiation is workflow depth for outpatient clinics. Most products generate generic notes. We are building specialty-specific templates and deeper EHR workflows. For example, dermatology, primary care, and orthopedics all need different note structures.
+
+Rachel: What is your background?
+Maya: I was a product manager at Epic for four years, focused on clinical documentation workflows. My cofounder was an ML engineer at Nuance. We both saw how much time was wasted on documentation and how hard it is to fit generic tools into clinical workflows.
+
+Rachel: Are you fundraising right now?
+Maya: Yes. We are raising a $2M seed round. We have about $600k soft-circled from angels and healthcare operators. We want to use the round to expand EHR integrations and hire two ML engineers.
+
+Rachel: What milestones would you want to hit with that round?
+Maya: We want to reach $150k MRR, prove six-month retention, and expand from 12 clinics to 50 clinics. We also want to show that our documentation quality is specialty-specific, not just generic transcription.
+
+Rachel: What should we pay attention to if we continue diligence?
+Maya: Retention and EHR integration depth. Those are the two biggest things. If doctors keep using us after the initial novelty period, and if we reduce workflow friction, we think this becomes a durable product.
+
+Rachel: That makes sense. What would be the best next step?
+Maya: I can send over our clinic cohort data and a few anonymized before-and-after note examples. We should have updated pilot conversion numbers next week.
+
+Rachel: Great. Let's reconnect next week after you have that pilot data.`,
+  },
+  {
+    source: "granola" as const,
+    title: "Granola transcript - FinOps Copilot founder call",
+    raw_text: `VC Call Transcript - FinOps Copilot
+Source: Granola
+Company: FinOps Copilot
+Founder: Elena Rossi
+Stage: Seed
+Segment: Finance Automation
+
+Participants:
+- Investor: Rachel, Associate at Northstar Ventures
+- Founder: Elena Rossi, CEO of FinOps Copilot
+
+Rachel: Elena, thanks for joining. Can you give me the overview of FinOps Copilot?
+Elena: Absolutely. FinOps Copilot is an AI finance operations assistant for SaaS companies. We automate repetitive finance workflows like invoice follow-up, revenue reconciliation, expense categorization, and monthly reporting.
+
+Rachel: Who is the main user?
+Elena: Our main user is the finance lead at a 50 to 500 person SaaS company. Usually they have a small finance team, maybe one controller and one analyst, but they are dealing with a growing number of tools: Stripe, QuickBooks, NetSuite, Ramp, Brex, and internal spreadsheets.
+
+Rachel: What is the wedge?
+Elena: Our wedge is revenue reconciliation. SaaS companies often have payments in Stripe, contracts in Salesforce, invoices in QuickBooks, and manual spreadsheets tying everything together. We use AI agents to reconcile mismatches and flag exceptions.
+
+Rachel: How painful is that problem?
+Elena: Very painful. One of our customers was spending three full days every month reconciling revenue before close. With FinOps Copilot, that went down to about four hours.
+
+Rachel: Where are you on traction?
+Elena: We are at $55k MRR across 14 paying customers. Most are Series A to Series C SaaS companies. Our average ACV is around $48k, and sales cycles are about 30 to 45 days.
+
+Rachel: That's strong. How much of the workflow is actually automated?
+Elena: Today, we automate about 60 to 70 percent of the reconciliation workflow. For anything uncertain, the system flags the issue and asks for human approval. We don't want to be fully autonomous where accuracy matters.
+
+Rachel: What integrations do you support?
+Elena: Stripe, QuickBooks, NetSuite, Salesforce, Ramp, and Brex. We started with Stripe and QuickBooks, but NetSuite has become more important for larger customers.
+
+Rachel: How do you compete with existing finance automation tools?
+Elena: Most tools are system-of-record focused. We are not trying to replace NetSuite or QuickBooks. We sit on top of them as an AI operations layer. The key difference is that we can reason across multiple systems and explain why numbers don't match.
+
+Rachel: What is your background?
+Elena: I was head of finance at a Series B SaaS company before starting FinOps Copilot. My cofounder built data infrastructure at Plaid. We lived this problem ourselves.
+
+Rachel: Are you currently raising?
+Elena: Yes. We are raising a $2.5M seed. We already have $1.1M committed from operators and one micro fund. We are looking for a lead who understands vertical workflow software.
+
+Rachel: What are the main risks?
+Elena: The biggest risk is scope creep. Finance workflows can become very broad. We are trying to stay focused on revenue reconciliation and close workflows before expanding.
+
+Rachel: What would you use the round for?
+Elena: Engineering and go-to-market. We need to deepen integrations and hire our first sales lead. We are seeing more inbound than we can handle.
+
+Rachel: What should we follow up on?
+Elena: I can send customer references, a product demo recording, and our retention cohorts. We have one larger customer expanding from $40k to $95k ACV next month.
+
+Rachel: Great. This feels like something we should discuss in our partner meeting.`,
+  },
+  {
+    source: "granola" as const,
+    title: "Granola transcript - EvalStack founder call",
+    raw_text: `VC Call Transcript - EvalStack
+Source: Granola
+Company: EvalStack
+Founder: Tom Becker
+Stage: Pre-seed
+Segment: DevTools
+
+Participants:
+- Investor: Rachel, Associate at Northstar Ventures
+- Founder: Tom Becker, Founder of EvalStack
+
+Rachel: Tom, good to meet you. Can you start with what EvalStack does?
+Tom: Sure. EvalStack is an open-source evaluation framework for teams building LLM applications. We help developers test prompts, agents, retrieval pipelines, and model outputs before they ship to production.
+
+Rachel: What problem are you solving?
+Tom: A lot of teams are building AI features, but they don't know whether the system is getting better or worse. They change a prompt or switch models and rely on vibes. EvalStack gives them structured evals, regression tests, and production monitoring.
+
+Rachel: Who uses it today?
+Tom: Mostly AI engineers and product engineers at startups. We are seeing usage from companies building customer support agents, internal copilots, and RAG-based search tools.
+
+Rachel: Is it open source?
+Tom: Yes. The core framework is open source. We launched six weeks ago and have around 1.8k GitHub stars. We also have about 350 active weekly users based on package downloads and telemetry from opt-in users.
+
+Rachel: Do you have revenue?
+Tom: Not yet. We are pre-revenue. We are testing a hosted version with five design partners. The hosted product includes dashboards, team collaboration, eval history, and production monitoring.
+
+Rachel: What do people use instead today?
+Tom: Mostly internal scripts, spreadsheets, or lightweight prompt testing tools. Larger companies build internal eval platforms, but most startups don't have the time.
+
+Rachel: Why will this become a company and not just a library?
+Tom: The library is the wedge. The real value is in the hosted workflow: versioning evals, comparing models, monitoring drift, and sharing results across engineering and product teams. Once evals become part of CI/CD for AI apps, the system of record matters.
+
+Rachel: What is your background?
+Tom: I was an ML infrastructure engineer at Datadog. Before that I worked on testing infrastructure at a developer tools company. My cofounder previously worked on LLM deployment tooling at an AI startup.
+
+Rachel: Are you raising right now?
+Tom: Not immediately. We may raise a pre-seed in the next three to four months. Right now we want to prove that open-source usage converts into hosted demand.
+
+Rachel: What would make you decide to raise?
+Tom: If we get 20 design partners using the hosted product and at least five willing to pay, we would raise. We want to avoid raising before we understand the buyer.
+
+Rachel: Who is the buyer?
+Tom: That is still being tested. In smaller startups, it is usually the CTO or head of engineering. In larger companies, it might be AI platform teams.
+
+Rachel: What are the main risks?
+Tom: Monetization is the biggest one. Developer love does not always convert into budget. Also, the AI evaluation space is moving very quickly.
+
+Rachel: What should we do next?
+Tom: I can share our GitHub repo, usage metrics, and a list of design partner profiles. I'd also love feedback on whether investors are seeing evaluation become a board-level issue.
+
+Rachel: Definitely. I'd like to stay close, especially before you start fundraising.`,
+  },
+  {
+    source: "granola" as const,
+    title: "Granola transcript - ClauseIQ founder call",
+    raw_text: `VC Call Transcript - ClauseIQ
+Source: Granola
+Company: ClauseIQ
+Founder: Marcus Lee
+Stage: Seed
+Segment: Legal AI
+
+Participants:
+- Investor: Rachel, Associate at Northstar Ventures
+- Founder: Marcus Lee, CEO of ClauseIQ
+
+Rachel: Marcus, thanks for taking the call. What is ClauseIQ?
+Marcus: ClauseIQ is an AI legal research assistant for boutique law firms. We help lawyers find relevant case law, summarize legal arguments, and draft research memos faster.
+
+Rachel: Why focus on boutique firms?
+Marcus: Large law firms already have expensive research tools and internal knowledge teams. Boutique firms have the same research needs but much smaller teams and tighter budgets. They need speed and leverage.
+
+Rachel: What is the main workflow?
+Marcus: A lawyer enters a legal question, uploads any relevant case files or documents, and ClauseIQ returns relevant cases, summaries, citations, and suggested arguments. The lawyer can then turn that into a research memo.
+
+Rachel: How do you handle accuracy? Legal research has a high bar.
+Marcus: We don't allow unsupported answers. Every generated claim needs to link back to source material. We also show confidence levels and separate verified case references from AI-generated summaries.
+
+Rachel: Are users paying today?
+Marcus: Yes. We are at about $25k MRR across 18 boutique law firms. Most customers are paying between $800 and $2,000 per month depending on seat count.
+
+Rachel: How did you acquire those customers?
+Marcus: Mostly founder-led sales. I was a lawyer before starting the company, so I had a network of small firm partners. We also get referrals because the legal community is fairly tight.
+
+Rachel: What is your retention like?
+Marcus: Still early. Our first paying cohort has been active for four months. Usage is strongest among litigation teams. Transactional lawyers use it less frequently.
+
+Rachel: How are you different from larger legal tech platforms?
+Marcus: We are not trying to replace Westlaw or Lexis. We are building the AI workflow layer on top of legal research. Our customers still use primary research databases, but ClauseIQ helps them move from question to memo faster.
+
+Rachel: What is your team background?
+Marcus: I practiced litigation for five years. My cofounder was an NLP researcher at a legal tech company. We both felt the first generation of legal AI tools was too broad and not workflow-specific enough.
+
+Rachel: Are you fundraising?
+Marcus: Yes. We are raising a $2.8M seed round. We have $900k committed from angels and legal tech operators. We want to hire two engineers and one customer success lead.
+
+Rachel: What are your biggest concerns right now?
+Marcus: Differentiation and trust. Legal AI is crowded, and lawyers are skeptical. We need to keep proving accuracy and workflow value.
+
+Rachel: What would you want from an investor besides capital?
+Marcus: Help with positioning and introductions to legal operators. Also, we want a board member who understands vertical SaaS and trust-heavy markets.
+
+Rachel: Makes sense. Can you send over customer references and usage data?
+Marcus: Yes, I can send anonymized usage cohorts and two customer references this week.
+
+Rachel: Great. I'll compare this with a few other legal AI companies we've seen and follow up.`,
+  },
+] satisfies Array<{ source: "granola"; title: string; raw_text: string }>;
+
+export async function ensureGranolaDemoInbox(userId: string) {
+  const titles = GRANOLA_DEMO_TRANSCRIPTS.map((n) => n.title);
+  const { data: existing, error: existingErr } = await supabase
+    .from("notes")
+    .select("title")
+    .eq("user_id", userId)
+    .in("title", titles);
+  if (existingErr) throw existingErr;
+
+  const existingTitles = new Set((existing ?? []).map((n) => n.title));
+  const missing = GRANOLA_DEMO_TRANSCRIPTS.filter((n) => !existingTitles.has(n.title));
+  if (!missing.length) return 0;
+
+  const { error } = await supabase.from("notes").insert(
+    missing.map((n) => ({
+      user_id: userId,
+      source: n.source,
+      title: n.title,
+      raw_text: n.raw_text,
+      status: "unprocessed" as const,
+    })),
+  );
+  if (error) throw error;
+  return missing.length;
+}
+
 export async function seedDemoDataIfEmpty(userId: string) {
   const { count } = await supabase.from("startups").select("id", { count: "exact", head: true }).eq("user_id", userId);
   if ((count ?? 0) > 0) return false;
@@ -174,30 +421,8 @@ export async function seedDemoDataIfEmpty(userId: string) {
   }));
   await supabase.from("analyses").insert(analysisRows);
 
-  // Inbox: a couple of unprocessed notes (no startup yet) to triage
-  await supabase.from("notes").insert([
-    {
-      user_id: userId,
-      source: "granola" as const,
-      title: "Intro call — NorthBeam (climate)",
-      raw_text: "Met Jonas from NorthBeam. They build grid-edge battery optimization software for European utilities. Founder ex-Tesla Energy. 2 paid pilots in NL. Concerned about long sales cycles. Could fit Climate Tech segment.",
-      status: "unprocessed" as const,
-    },
-    {
-      user_id: userId,
-      source: "hubspot" as const,
-      title: "Inbound — RubricAI",
-      raw_text: "RubricAI is a vertical AI tool for K-12 teachers to grade open-ended assignments. Bottoms-up adoption, $19/seat. Founders are 2x edtech operators. New segment for us — adjacent to Vertical Healthcare AI thesis.",
-      status: "unprocessed" as const,
-    },
-    {
-      user_id: userId,
-      source: "manual" as const,
-      title: "Cold inbound — Stratify",
-      raw_text: "Stratify is building AI sales coaching from call recordings. Sales Automation segment is crowded. Need to assess if voice-native is enough of a wedge vs Gong incumbents.",
-      status: "unprocessed" as const,
-    },
-  ]);
+  // Inbox: Granola-style VC call transcripts to triage during the demo.
+  await ensureGranolaDemoInbox(userId);
 
   return true;
 }

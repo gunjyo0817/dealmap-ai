@@ -26,4 +26,13 @@ export default tseslint.config(
       "@typescript-eslint/no-require-imports": "warn",
     },
   },
+  {
+    files: ["supabase/functions/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        Deno: "readonly",
+      },
+    },
+  },
 );
