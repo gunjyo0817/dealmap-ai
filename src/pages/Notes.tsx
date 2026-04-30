@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { useNotes } from "@/hooks/useWorkspaceData";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { analyzeNote } from "@/lib/analyze-note";
 import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatDistanceToNow } from "date-fns";
-import { FileText, Plus, Search } from "lucide-react";
+import { FileText, Plus, Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -18,6 +19,7 @@ export default function Notes() {
   const qc = useQueryClient();
   const { data: notes = [], isLoading } = useNotes();
   const [pasted, setPasted] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
   const [q, setQ] = useState("");
   const [src, setSrc] = useState("all");
   const [status, setStatus] = useState("all");
@@ -54,6 +56,38 @@ export default function Notes() {
     refresh();
   };
 
+  const addAndAnalyze = async () => {
+    if (!pasted.trim() || !user || isImporting) return;
+    setIsImporting(true);
+    try {
+      const { data: note, error: noteError } = await supabase
+        .from("notes")
+        .insert({
+          user_id: user.id,
+          source: "manual" as const,
+          title: `Transcript · ${new Date().toLocaleDateString()}`,
+          raw_text: pasted.trim(),
+          status: "unprocessed" as const,
+        })
+        .select("id")
+        .single();
+      if (noteError) { toast.error(noteError.message); return; }
+
+      const { startup, isNew } = await analyzeNote(note.id, user.id);
+      setPasted("");
+      toast.success(
+        isNew
+          ? `New startup created: ${startup.name}`
+          : `${startup.name} updated with transcript insights`,
+      );
+      refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Analysis failed");
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-6">
       <div>
@@ -64,8 +98,12 @@ export default function Notes() {
       <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
         <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold"><Plus className="h-4 w-4" /> Add transcript</div>
         <Textarea rows={4} value={pasted} onChange={(e) => setPasted(e.target.value)} placeholder="Paste meeting notes, call transcript, or forwarded intro..." />
-        <div className="mt-2 flex justify-end">
-          <Button size="sm" onClick={addPasted} disabled={!pasted.trim()}>Send to inbox</Button>
+        <div className="mt-2 flex justify-end gap-2">
+          <Button size="sm" variant="outline" onClick={addPasted} disabled={!pasted.trim() || isImporting}>Save to inbox</Button>
+          <Button size="sm" onClick={addAndAnalyze} disabled={!pasted.trim() || isImporting}>
+            <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+            {isImporting ? "Analyzing…" : "Analyze & Import to CRM"}
+          </Button>
         </div>
       </div>
 
