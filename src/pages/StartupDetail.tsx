@@ -46,6 +46,7 @@ export default function StartupDetail() {
   if (isLoading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   if (!data?.startup) return <div className="p-6 text-sm text-muted-foreground">Startup not found.</div>;
   const s = data.startup;
+  const segment = s.segment as { id: string; name: string; trend: string | null } | null;
 
   const addNote = async () => {
     if (!newNote.trim() || !user) return;
@@ -96,7 +97,7 @@ export default function StartupDetail() {
             </div>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{s.summary ?? "No summary yet."}</p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              {s.segment && <Link to={`/segments`} className="inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent">{(s.segment as any).name}</Link>}
+              {segment && <Link to={`/segments`} className="inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent">{segment.name}</Link>}
               <StageBadge value={s.stage} />
               <StatusBadge value={s.status} />
               <span className="text-xs text-muted-foreground">· {s.founder ?? "Unknown founder"}</span>
