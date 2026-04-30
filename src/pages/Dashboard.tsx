@@ -1,4 +1,4 @@
-import { useStartups, useSegments, useFollowUps, useNotes } from "@/hooks/useWorkspaceData";
+import { useStartups, useSegments, useFollowUps, useInsights, useNotes } from "@/hooks/useWorkspaceData";
 import { StatCard } from "@/components/dealmap/StatCard";
 import { Building2, Layers, AlertTriangle, ArrowRight, Share2, Inbox } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -26,6 +26,7 @@ export default function Dashboard() {
   const { data: startups = [] } = useStartups();
   const { data: segments = [] } = useSegments();
   const { data: followups = [] } = useFollowUps();
+  const { data: insights = [] } = useInsights();
   const { data: notes = [] } = useNotes();
 
   const highFollowups = followups.filter((f) => f.priority === "High" && f.status === "open");
@@ -51,13 +52,6 @@ export default function Dashboard() {
       </div>
 
       <TodaysPriorities />
-
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatCard label="Startups" value={startups.length} hint="across your workspace" icon={<Building2 className="h-3.5 w-3.5" />} accent="accent" />
-        <StatCard label="Segments" value={segments.length} hint={`${crowded.length} crowded`} icon={<Layers className="h-3.5 w-3.5" />} accent="violet" />
-        <StatCard label="High follow-ups" value={highFollowups.length} hint="open & high priority" icon={<AlertTriangle className="h-3.5 w-3.5" />} accent="warning" />
-        <StatCard label="Notes" value={notes.length} hint="captured across sources" icon={<Inbox className="h-3.5 w-3.5" />} accent="teal" />
-      </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="rounded-xl border border-border bg-surface p-5 shadow-card lg:col-span-2">
@@ -114,9 +108,8 @@ export default function Dashboard() {
                 </div>
                 <div className="line-clamp-2 text-xs text-muted-foreground">{i.content}</div>
               </div>
-              <TrendBadge value={s.trend} />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
@@ -152,24 +145,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Recent notes analyzed</h3>
-          <Link to="/inbox" className="text-xs text-accent hover:underline">All notes</Link>
-        </div>
-        <div className="divide-y divide-border">
-          {notes.slice(0, 5).map((n) => (
-            <div key={n.id} className="flex items-center justify-between py-2.5">
-              <div className="min-w-0">
-                <div className="truncate text-sm">{n.title ?? "Untitled note"}</div>
-                <div className="truncate text-xs text-muted-foreground">{n.startup?.name ?? "Unassigned"} · {n.source}</div>
-              </div>
-              <div className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}</div>
-            </div>
-          ))}
-          {notes.length === 0 && <div className="py-6 text-center text-xs text-muted-foreground">No notes yet — import or paste to start building memory.</div>}
-        </div>
-      </div>
     </div>
   );
 }
