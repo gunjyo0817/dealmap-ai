@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useInsights } from "@/hooks/useWorkspaceData";
-import { Sparkles, TrendingUp, Layers, AlertTriangle, Lightbulb, HelpCircle, Brain } from "lucide-react";
+import { Sparkles, TrendingUp, Layers, AlertTriangle, Lightbulb, HelpCircle, Brain, Share2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TYPES = [
@@ -41,6 +41,17 @@ export default function Insights() {
         <h1 className="font-display text-3xl font-normal tracking-tight">Insights</h1>
         <p className="text-sm text-muted-foreground">Saved AI insights with confidence and recommended actions.</p>
       </div>
+
+      <Link to="/social-sourcing" className="flex items-center justify-between rounded-xl border border-border bg-gradient-to-r from-violet-soft/60 to-accent-soft/40 px-4 py-3 shadow-card hover:border-violet/40">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-violet text-white"><Share2 className="h-4 w-4" /></div>
+          <div>
+            <div className="text-sm font-semibold">Social sourcing signals</div>
+            <div className="text-[11px] text-muted-foreground">3 high-signal founders · 4 warm intro paths · demo social graph</div>
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-violet">Open Social Sourcing <ArrowRight className="h-3 w-3" /></span>
+      </Link>
 
       <div className="flex flex-wrap gap-1.5">
         {TYPES.map((t) => {

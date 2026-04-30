@@ -9,6 +9,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { StartupSocialSection } from "@/components/dealmap/StartupSocialSection";
 
 export default function StartupDetail() {
   const { id } = useParams<{ id: string }>();
@@ -185,6 +186,8 @@ export default function StartupDetail() {
           ))}
         </div>
       </div>
+
+      <StartupSocialSection startupName={s.name} />
 
       {/* Bottom: notes timeline */}
       <div className="rounded-xl border border-border bg-surface p-5 shadow-card">

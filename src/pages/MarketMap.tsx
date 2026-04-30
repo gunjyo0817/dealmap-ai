@@ -1,9 +1,21 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { useSegments, useStartups } from "@/hooks/useWorkspaceData";
 import { TrendBadge, PriorityBadge, StageBadge } from "@/components/dealmap/PriorityBadge";
-import { Layers, LayoutGrid, Grid3x3, Table as TableIcon } from "lucide-react";
+import { Layers, LayoutGrid, Grid3x3, Table as TableIcon, Share2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
+import { findSignalByStartupName } from "@/lib/social-sourcing-data";
+import { SocialBadge } from "@/components/dealmap/SocialBadge";
+
+function SocialBadgeRow({ name }: { name: string }) {
+  const sig = findSignalByStartupName(name);
+  if (!sig) return null;
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1">
+      {sig.badges.slice(0, 2).map((b) => <SocialBadge key={b} value={b} size="xs" />)}
+    </div>
+  );
+}
 
 type View = "board" | "matrix" | "table";
 
@@ -21,6 +33,10 @@ export default function MarketMap() {
           <h1 className="font-display text-3xl font-normal tracking-tight">Market Map</h1>
           <p className="text-sm text-muted-foreground">Visualize your portfolio across segments, opportunity, and crowdedness.</p>
         </div>
+        <div className="flex items-center gap-2">
+        <Link to="/social-sourcing" className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-violet hover:border-violet/40">
+          <Share2 className="h-3.5 w-3.5" /> Social sourcing <ArrowRight className="h-3 w-3" />
+        </Link>
         <div className="inline-flex rounded-lg border border-border bg-surface p-0.5">
           {[
             { v: "board" as const, icon: LayoutGrid, label: "Board" },
@@ -34,6 +50,7 @@ export default function MarketMap() {
               <t.icon className="h-3.5 w-3.5" /> {t.label}
             </button>
           ))}
+        </div>
         </div>
       </div>
 
@@ -76,6 +93,7 @@ function BoardView({ segments, unsegmented }: { segments: any[]; unsegmented: an
                   <StageBadge value={st.stage} />
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{st.status}</span>
                 </div>
+                <SocialBadgeRow name={st.name} />
               </Link>
             ))}
           </div>
