@@ -212,6 +212,9 @@ function json(body: unknown, status = 200) {
 function guessName(text: string) {
   const company = text.match(/^Company:\s*(.+)$/im)?.[1]?.trim();
   if (company) return company.slice(0, 120);
+  // "VC Call Transcript — CareFlow AI" or "Meeting Notes — Acme Corp" patterns
+  const dashSuffix = text.match(/^[^\n—–-]{3,60}[—–-]+\s*(.+)$/im)?.[1]?.trim();
+  if (dashSuffix && dashSuffix.length <= 80) return dashSuffix.slice(0, 120);
   const callTitle = text.match(/^([A-Z][a-zA-Z0-9]+(?:[A-Z][a-zA-Z0-9]+)?)\s+(?:founder|intro|partner)/im)?.[1];
   if (callTitle) return callTitle;
   const match = text.match(/\b([A-Z][a-zA-Z0-9]{2,}(?:[A-Z][a-zA-Z0-9]+)?)\b/);
@@ -607,11 +610,23 @@ Deno.serve(async (req) => {
 
     analysis ??= heuristicAnalysis(note.raw_text, segmentOptions, existingStartupOptions);
 
-    // Validate matchedStartupId against actual DB records to prevent hallucination
-    const validatedMatchId = analysis.matchedStartupId &&
+    // Step 1: validate the LLM-returned UUID against actual DB records
+    let validatedMatchId = analysis.matchedStartupId &&
       existingStartupOptions.some((s) => s.id === analysis!.matchedStartupId)
       ? analysis.matchedStartupId
       : null;
+
+    // Step 2: if LLM didn't return a valid UUID, fall back to server-side fuzzy name match.
+    // This catches cases where Gemini extracts the right name but picks a wrong/hallucinated UUID,
+    // or when the heuristic fallback produces a mismatched name (e.g. "Call" vs "CareFlow AI").
+    if (!validatedMatchId) {
+      const extractedName = analysis.startup.name.toLowerCase().trim();
+      const fuzzyMatch = existingStartupOptions.find((s) => {
+        const sn = s.name.toLowerCase().trim();
+        return sn === extractedName || sn.includes(extractedName) || extractedName.includes(sn);
+      });
+      if (fuzzyMatch) validatedMatchId = fuzzyMatch.id;
+    }
 
     if (validatedMatchId) {
       // Existing startup: just link the transcript and touch last_interaction_at.

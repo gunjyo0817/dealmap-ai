@@ -138,6 +138,8 @@ function emptyToNull(value: string) {
 function guessName(text: string) {
   const company = text.match(/^Company:\s*(.+)$/im)?.[1]?.trim();
   if (company) return company.slice(0, 120);
+  const dashSuffix = text.match(/^[^\n—–-]{3,60}[—–-]+\s*(.+)$/im)?.[1]?.trim();
+  if (dashSuffix && dashSuffix.length <= 80) return dashSuffix.slice(0, 120);
   const match = text.match(/\b([A-Z][a-zA-Z0-9]{2,}(?:[A-Z][a-zA-Z0-9]+)?)\b/);
   return match?.[1] ?? "New Startup";
 }
