@@ -295,7 +295,7 @@ export function MarketMap() {
                   ))}
                 </div>
               </div>
-              <p className="mt-3 font-display text-lg italic leading-snug text-foreground/85">
+              <p className="mt-3 font-['Instrument_Serif',serif] text-lg italic leading-snug text-foreground/85">
                 "{m.insight}"
               </p>
             </div>
