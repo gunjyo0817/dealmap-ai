@@ -18,11 +18,9 @@ import {
   Sparkles,
   Shield,
   Bell,
-  CheckCircle2,
   Database,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { cn } from "@/lib/utils";
 
 function Section({
   icon: Icon,
@@ -185,24 +183,8 @@ export default function Settings() {
       </Section>
 
       {/* C. Integrations */}
-      <Section icon={Plug} title="Integrations" description="Connect CRM, notes, and manual sources.">
-        <div className="grid gap-3 md:grid-cols-3">
-          <IntegrationCard
-            name="HubSpot CRM"
-            statusLabel="Demo connected"
-            statusTone="success"
-            sub="128 records synced"
-            buttonLabel="Manage"
-            onClick={() => toast("Manage HubSpot CRM", { description: "Demo integration" })}
-          />
-          <IntegrationCard
-            name="Granola Notes"
-            statusLabel="Demo connected"
-            statusTone="success"
-            sub="47 notes synced"
-            buttonLabel="Manage"
-            onClick={() => toast("Manage Granola Notes", { description: "Demo integration" })}
-          />
+      <Section icon={Plug} title="Integrations" description="Configure note sources.">
+        <div className="grid gap-3 md:grid-cols-1">
           <IntegrationCard
             name="Manual Notes"
             statusLabel="Ready"
@@ -215,7 +197,7 @@ export default function Settings() {
       </Section>
 
       {/* D. AI preferences */}
-      <Section icon={Sparkles} title="AI preferences" description="How DealMap AI analyzes your notes and CRM.">
+      <Section icon={Sparkles} title="AI preferences" description="How DealMap AI analyzes your notes.">
         <div className="space-y-3">
           <Field label="Default analysis depth">
             <Select value={ai.depth} onValueChange={(v) => setAi({ ...ai, depth: v })}>
@@ -308,7 +290,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function IntegrationCard({
   name, statusLabel, statusTone, sub, buttonLabel, onClick,
 }: {
-  name: string; statusLabel: string; statusTone: "success" | "muted";
+  name: string; statusLabel: string; statusTone: "muted";
   sub: string; buttonLabel: string; onClick: () => void;
 }) {
   return (
@@ -316,14 +298,8 @@ function IntegrationCard({
       <div className="flex items-start justify-between gap-2">
         <div className="font-medium">{name}</div>
         <span
-          className={cn(
-            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
-            statusTone === "success"
-              ? "bg-success/10 text-success"
-              : "bg-muted text-muted-foreground",
-          )}
+          className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
         >
-          {statusTone === "success" && <CheckCircle2 className="h-3 w-3" />}
           {statusLabel}
         </span>
       </div>

@@ -1,14 +1,13 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Building2, Layers, ArrowRight, Plus, Check, Sparkles } from "lucide-react";
+import { Building2, ArrowRight, Plus, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStartups } from "@/hooks/useWorkspaceData";
 import { cn } from "@/lib/utils";
 
 type PriorityItem = {
   key: string;
-  kind: "startup" | "segment";
   title: string;
   matchName: string;
   recommended: string;
@@ -22,7 +21,6 @@ type PriorityItem = {
 const ITEMS: PriorityItem[] = [
   {
     key: "carbongrid",
-    kind: "startup",
     title: "CarbonGrid",
     matchName: "CarbonGrid",
     recommended: "Schedule partner review",
@@ -35,7 +33,6 @@ const ITEMS: PriorityItem[] = [
   },
   {
     key: "lexflow",
-    kind: "startup",
     title: "LexFlow",
     matchName: "LexFlow",
     recommended: "Validate paid pilot conversion",
@@ -72,11 +69,13 @@ export function TodaysPriorities() {
   const [done, setDone] = useState<Record<string, boolean>>({});
 
   const resolvePath = (item: PriorityItem) => {
-    if (item.kind === "startup") {
-      const s = startups.find((x) => x.name === item.matchName);
-      return s ? `/startups/${s.id}` : item.primaryFallbackPath;
-    }
-    return item.primaryFallbackPath;
+    const s = startups.find((x) => x.name === item.matchName);
+    return s ? `/startups/${s.id}` : item.primaryFallbackPath;
+  };
+
+  const resolveFollowupPath = (item: PriorityItem) => {
+    const s = startups.find((x) => x.name === item.matchName);
+    return s ? `/startups/${s.id}#followups` : item.primaryFallbackPath;
   };
 
   return (
@@ -87,14 +86,13 @@ export function TodaysPriorities() {
           <h2 className="font-display text-xl font-normal tracking-tight">Today's priorities</h2>
         </div>
         <p className="text-xs text-muted-foreground">
-          The most important deals and segments to act on today.
+          The most important startup deals to act on today.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         {ITEMS.map((item) => {
           const isDone = !!done[item.key];
-          const Icon = item.kind === "startup" ? Building2 : Layers;
           return (
             <article
               key={item.key}
@@ -106,8 +104,8 @@ export function TodaysPriorities() {
               <div className={cn("absolute inset-x-0 top-0 h-1", accentBar[item.accent])} />
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                  <Icon className="h-3 w-3" />
-                  {item.kind === "startup" ? "Startup" : "Segment"}
+                  <Building2 className="h-3 w-3" />
+                  Startup
                 </div>
                 {isDone && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
@@ -132,14 +130,11 @@ export function TodaysPriorities() {
                     {item.primaryLabel} <ArrowRight className="h-3 w-3" />
                   </Button>
                 </Link>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 gap-1 px-2.5 text-xs"
-                  onClick={() => toast.success(`${item.secondaryLabel} added`, { description: item.title })}
-                >
-                  <Plus className="h-3 w-3" /> {item.secondaryLabel}
-                </Button>
+                <Link to={resolveFollowupPath(item)}>
+                  <Button size="sm" variant="outline" className="h-7 gap-1 px-2.5 text-xs">
+                    <Plus className="h-3 w-3" /> {item.secondaryLabel}
+                  </Button>
+                </Link>
                 <Button
                   size="sm"
                   variant="ghost"

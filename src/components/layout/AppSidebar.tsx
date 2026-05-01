@@ -19,15 +19,17 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarContent className="bg-surface">
-        <div className="flex items-center gap-2 px-4 py-5">
-          <img src="/logo.png" alt="DealMap AI logo" className="h-8 w-8 rounded-lg object-cover" />
-          {!collapsed && (
-            <div className="leading-tight">
-              <div className="text-sm font-semibold tracking-tight text-foreground">DealMap AI</div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">VC workspace</div>
-            </div>
-          )}
-        </div>
+        <NavLink to="/" end className="mx-2 mt-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <div className="flex items-center gap-2 px-2 py-3">
+            <img src="/logo.png" alt="DealMap AI logo" className="h-8 w-8 rounded-lg object-cover" />
+            {!collapsed && (
+              <div className="leading-tight">
+                <div className="text-sm font-semibold tracking-tight text-foreground">DealMap AI</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">VC workspace</div>
+              </div>
+            )}
+          </div>
+        </NavLink>
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
