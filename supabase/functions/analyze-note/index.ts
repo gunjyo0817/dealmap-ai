@@ -613,61 +613,54 @@ Deno.serve(async (req) => {
       ? analysis.matchedStartupId
       : null;
 
-    let startup: Record<string, unknown>;
-    let isNew: boolean;
-
     if (validatedMatchId) {
-      // UPDATE existing startup with fresh data from transcript
-      const { data: updatedStartup, error: updateError } = await supabase
+      // Existing startup: just link the transcript and touch last_interaction_at.
+      // Full field synthesis happens when the user explicitly clicks Reanalyze.
+      const { data: foundStartup, error: touchError } = await supabase
         .from("startups")
-        .update({
-          name: analysis.startup.name,
-          founder: analysis.startup.founder,
-          stage: analysis.startup.stage,
-          priority: analysis.startup.priority,
-          ...(analysis.segmentId ? { segment_id: analysis.segmentId } : {}),
-          summary: analysis.startup.summary,
-          differentiation: analysis.startup.differentiation,
-          target_customer: analysis.startup.targetCustomer,
-          last_interaction_at: new Date().toISOString(),
-        })
+        .update({ last_interaction_at: new Date().toISOString() })
         .eq("id", validatedMatchId)
         .eq("user_id", authData.user.id)
         .select()
         .single();
 
-      if (updateError) throw updateError;
-      startup = updatedStartup as Record<string, unknown>;
-      isNew = false;
-    } else {
-      // INSERT new startup
-      const { data: newStartup, error: startupError } = await supabase
-        .from("startups")
-        .insert({
-          user_id: authData.user.id,
-          name: analysis.startup.name,
-          founder: analysis.startup.founder,
-          stage: analysis.startup.stage,
-          priority: analysis.startup.priority,
-          segment_id: analysis.segmentId,
-          status: "First call completed",
-          source: note.source,
-          summary: analysis.startup.summary,
-          differentiation: analysis.startup.differentiation,
-          target_customer: analysis.startup.targetCustomer,
-          last_interaction_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+      if (touchError) throw touchError;
 
-      if (startupError) throw startupError;
-      startup = newStartup as Record<string, unknown>;
-      isNew = true;
+      const { error: noteLinkError } = await supabase
+        .from("notes")
+        .update({ startup_id: validatedMatchId, status: "analyzed" })
+        .eq("id", note.id)
+        .eq("user_id", authData.user.id);
+
+      if (noteLinkError) throw noteLinkError;
+
+      return json({ startup: foundStartup, provider: analysis.provider, model: analysis.model, isNew: false });
     }
 
-    const startupId = startup.id as string;
+    // New startup: create record + full set of analysis records
+    const { data: newStartup, error: startupError } = await supabase
+      .from("startups")
+      .insert({
+        user_id: authData.user.id,
+        name: analysis.startup.name,
+        founder: analysis.startup.founder,
+        stage: analysis.startup.stage,
+        priority: analysis.startup.priority,
+        segment_id: analysis.segmentId,
+        status: "First call completed",
+        source: note.source,
+        summary: analysis.startup.summary,
+        differentiation: analysis.startup.differentiation,
+        target_customer: analysis.startup.targetCustomer,
+        last_interaction_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
 
-    // Link note to startup and mark analyzed
+    if (startupError) throw startupError;
+
+    const startupId = (newStartup as Record<string, unknown>).id as string;
+
     const { error: noteUpdateError } = await supabase
       .from("notes")
       .update({ startup_id: startupId, status: "analyzed" })
@@ -676,7 +669,6 @@ Deno.serve(async (req) => {
 
     if (noteUpdateError) throw noteUpdateError;
 
-    // Insert new analysis entry
     const { error: analysisError } = await supabase.from("analyses").insert({
       user_id: authData.user.id,
       startup_id: startupId,
@@ -688,7 +680,6 @@ Deno.serve(async (req) => {
 
     if (analysisError) throw analysisError;
 
-    // Insert new follow-up questions
     const { error: followupError } = await supabase.from("follow_up_questions").insert(
       analysis.followups.map((followup) => ({
         user_id: authData.user.id,
@@ -700,39 +691,20 @@ Deno.serve(async (req) => {
 
     if (followupError) throw followupError;
 
-    // Insert competitors, deduplicating by name when updating an existing startup
     if (analysis.competitors.length) {
-      let competitorsToInsert = analysis.competitors;
+      const { error: competitorError } = await supabase.from("competitors").insert(
+        analysis.competitors.map((competitor) => ({
+          user_id: authData.user.id,
+          startup_id: startupId,
+          name: competitor.name,
+          relationship_type: competitor.relationshipType,
+          description: competitor.description,
+        })),
+      );
 
-      if (!isNew) {
-        const { data: existingCompetitors } = await supabase
-          .from("competitors")
-          .select("name")
-          .eq("startup_id", startupId)
-          .eq("user_id", authData.user.id);
-
-        const existingNames = new Set(
-          (existingCompetitors ?? []).map((c: { name: string }) => c.name.toLowerCase()),
-        );
-        competitorsToInsert = analysis.competitors.filter((c) => !existingNames.has(c.name.toLowerCase()));
-      }
-
-      if (competitorsToInsert.length) {
-        const { error: competitorError } = await supabase.from("competitors").insert(
-          competitorsToInsert.map((competitor) => ({
-            user_id: authData.user.id,
-            startup_id: startupId,
-            name: competitor.name,
-            relationship_type: competitor.relationshipType,
-            description: competitor.description,
-          })),
-        );
-
-        if (competitorError) throw competitorError;
-      }
+      if (competitorError) throw competitorError;
     }
 
-    // Insert new insight
     const { error: insightError } = await supabase.from("insights").insert({
       user_id: authData.user.id,
       startup_id: startupId,
@@ -746,12 +718,7 @@ Deno.serve(async (req) => {
 
     if (insightError) throw insightError;
 
-    return json({
-      startup,
-      provider: analysis.provider,
-      model: analysis.model,
-      isNew,
-    });
+    return json({ startup: newStartup, provider: analysis.provider, model: analysis.model, isNew: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Analysis failed";
     return json({ error: message }, 500);
