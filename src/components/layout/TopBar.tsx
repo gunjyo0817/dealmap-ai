@@ -1,4 +1,4 @@
-import { Search, Upload, Plus, LogOut, User as UserIcon } from "lucide-react";
+import { Search, Plus, LogOut, User as UserIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -7,14 +7,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { AddStartupDialog } from "@/components/dealmap/AddStartupDialog";
-import { ImportCRMDialog } from "@/components/dealmap/ImportCRMDialog";
 
 export function TopBar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
-  const [importOpen, setImportOpen] = useState(false);
 
   const initial = user?.email?.[0]?.toUpperCase() ?? "U";
 
@@ -36,9 +34,6 @@ export function TopBar() {
         />
       </form>
       <div className="ml-auto flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => setImportOpen(true)} className="gap-1.5">
-          <Upload className="h-3.5 w-3.5" /> Import CRM
-        </Button>
         <Button size="sm" onClick={() => setAddOpen(true)} className="gap-1.5">
           <Plus className="h-3.5 w-3.5" /> Add Startup
         </Button>
@@ -64,7 +59,6 @@ export function TopBar() {
         </DropdownMenu>
       </div>
       <AddStartupDialog open={addOpen} onOpenChange={setAddOpen} />
-      <ImportCRMDialog open={importOpen} onOpenChange={setImportOpen} />
     </header>
   );
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotes } from "@/hooks/useWorkspaceData";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatDistanceToNow } from "date-fns";
-import { FileText, Plus, Search, Sparkles } from "lucide-react";
+import { FileText, Paperclip, Plus, Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ export default function Notes() {
   const [src, setSrc] = useState("all");
   const [status, setStatus] = useState("all");
   const [active, setActive] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const filtered = useMemo(() => notes.filter((n) => {
     if (q && !`${n.title ?? ""} ${n.raw_text}`.toLowerCase().includes(q.toLowerCase())) return false;
@@ -88,6 +89,59 @@ export default function Notes() {
     }
   };
 
+  const extractTextFromPdf = async (file: File) => {
+    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/legacy/build/pdf.worker.min.mjs", import.meta.url).toString();
+
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const pdf = await pdfjs.getDocument({ data: bytes }).promise;
+    const chunks: string[] = [];
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const content = await page.getTextContent();
+      const pageText = content.items
+        .map((item) => ("str" in item ? item.str : ""))
+        .join(" ")
+        .trim();
+
+      if (pageText) chunks.push(pageText);
+    }
+
+    return chunks.join("\n\n");
+  };
+
+  const extractTextFromDocx = async (file: File) => {
+    const mammoth = await import("mammoth/mammoth.browser");
+    const { value } = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+    return value.trim();
+  };
+
+  const uploadTranscript = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const name = file.name.toLowerCase();
+      let content = "";
+
+      if (name.endsWith(".pdf")) {
+        content = await extractTextFromPdf(file);
+      } else if (name.endsWith(".docx")) {
+        content = await extractTextFromDocx(file);
+      } else {
+        content = await file.text();
+      }
+
+      if (!content.trim()) {
+        toast.error("Uploaded file is empty");
+        return;
+      }
+      setPasted((prev) => (prev.trim() ? `${prev.trim()}\n\n${content.trim()}` : content.trim()));
+      toast.success(`Loaded ${file.name}`);
+    } catch {
+      toast.error("Failed to read file");
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-6">
       <div>
@@ -98,7 +152,22 @@ export default function Notes() {
       <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
         <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold"><Plus className="h-4 w-4" /> Add transcript</div>
         <Textarea rows={4} value={pasted} onChange={(e) => setPasted(e.target.value)} placeholder="Paste meeting notes, call transcript, or forwarded intro..." />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+            void uploadTranscript(file);
+            e.currentTarget.value = "";
+          }}
+        />
         <div className="mt-2 flex justify-end gap-2">
+          <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isImporting}>
+            <Paperclip className="mr-1.5 h-3.5 w-3.5" />
+            Upload file
+          </Button>
           <Button size="sm" variant="outline" onClick={addPasted} disabled={!pasted.trim() || isImporting}>Save to inbox</Button>
           <Button size="sm" onClick={addAndAnalyze} disabled={!pasted.trim() || isImporting}>
             <Sparkles className="mr-1.5 h-3.5 w-3.5" />
