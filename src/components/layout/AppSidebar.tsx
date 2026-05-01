@@ -21,7 +21,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarContent className="bg-surface">
         <div className="flex items-center gap-2 px-4 py-5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-semibold">D</div>
+          <img src="/logo.png" alt="DealMap AI logo" className="h-8 w-8 rounded-lg object-cover" />
           {!collapsed && (
             <div className="leading-tight">
               <div className="text-sm font-semibold tracking-tight text-foreground">DealMap AI</div>

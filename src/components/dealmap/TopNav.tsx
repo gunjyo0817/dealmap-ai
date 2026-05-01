@@ -1,4 +1,4 @@
-import { Sparkles, Download, Upload, Wand2 } from "lucide-react";
+import { Download, Upload, Wand2 } from "lucide-react";
 import { Pill } from "./Badge";
 
 interface Props {
@@ -13,9 +13,7 @@ export function TopNav({ onImport, onGenerate, onExport, generating }: Props) {
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-3.5">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-card-md">
-            <Sparkles className="h-4 w-4" strokeWidth={2.25} />
-          </div>
+          <img src="/logo.png" alt="DealMap AI logo" className="h-9 w-9 rounded-lg object-cover shadow-card-md" />
           <div className="leading-tight">
             <div className="flex items-center gap-2">
               <span className="text-[15px] font-semibold tracking-tight text-foreground">
