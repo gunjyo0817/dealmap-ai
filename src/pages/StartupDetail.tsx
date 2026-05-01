@@ -230,7 +230,7 @@ export default function StartupDetail() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
+      <div id="followups" className="scroll-mt-20 rounded-xl border border-border bg-surface p-5 shadow-card">
         <h3 className="mb-3 text-sm font-semibold">Follow-up questions</h3>
         <div className="space-y-2">
           {data.followups.length === 0 && <div className="text-xs text-muted-foreground">No open follow-ups.</div>}
