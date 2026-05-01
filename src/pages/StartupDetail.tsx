@@ -82,19 +82,21 @@ export default function StartupDetail() {
   };
 
   const reanalyze = async () => {
-    if (!user) return;
+    if (!user || !id) return;
     setAnalyzing(true);
-    await new Promise((r) => setTimeout(r, 1400));
-    await supabase.from("analyses").insert({
-      user_id: user.id,
-      startup_id: s.id,
-      ai_summary: `Re-analyzed ${s.name}: ${s.summary ?? "summary pending"}`,
-      risk_signals: ["Differentiation needs sharper articulation", "Early customer concentration"],
-      opportunity_signals: ["Strong founder-market fit", "Regulatory tailwind in segment"],
-    });
-    setAnalyzing(false);
-    toast.success("Re-analyzed", { description: "Updated insights based on latest notes." });
-    qc.invalidateQueries({ queryKey: ["startup-detail", id] });
+    try {
+      const { error } = await supabase.functions.invoke("reanalyze-startup", {
+        body: { startupId: id },
+      });
+      if (error) throw error;
+      toast.success("Re-analyzed", { description: "All transcripts synthesized into updated profile." });
+      qc.invalidateQueries({ queryKey: ["startup-detail", id] });
+      qc.invalidateQueries({ queryKey: ["startups"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Re-analysis failed");
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return (
