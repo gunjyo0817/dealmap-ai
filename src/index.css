@@ -8,110 +8,108 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* DealMap AI — premium B2B SaaS palette */
-    --background: 40 20% 99%;
+    /* Reference: deep teal #003B36 + neon yellow #D9FF00 on neutral canvas */
+    --background: 210 20% 98%;
     --surface: 0 0% 100%;
-    --surface-muted: 220 20% 98%;
-    --foreground: 222 32% 12%;
-    --foreground-muted: 220 12% 38%;
+    --surface-muted: 172 12% 95%;
+    --foreground: 172 96% 12%;
+    --foreground-muted: 172 25% 32%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 32% 12%;
+    --card-foreground: 172 96% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 32% 12%;
+    --popover-foreground: 172 96% 12%;
 
-    --primary: 222 45% 16%;
-    --primary-foreground: 40 20% 99%;
+    --primary: 172 96% 12%;
+    --primary-foreground: 210 20% 98%;
 
-    --secondary: 220 20% 96%;
-    --secondary-foreground: 222 32% 12%;
+    --secondary: 172 14% 92%;
+    --secondary-foreground: 172 96% 12%;
 
-    --muted: 220 20% 96%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 172 12% 93%;
+    --muted-foreground: 172 18% 40%;
 
-    --accent: 218 70% 52%;
+    --accent: 176 48% 42%;
     --accent-foreground: 0 0% 100%;
-    --accent-soft: 218 80% 96%;
+    --accent-soft: 176 42% 91%;
 
-    --success: 152 55% 38%;
-    --success-soft: 152 55% 94%;
-    --warning: 35 92% 50%;
-    --warning-soft: 38 95% 95%;
-    --danger: 0 72% 50%;
-    --danger-soft: 0 80% 96%;
-    --violet: 258 60% 56%;
-    --violet-soft: 258 70% 96%;
-    --teal: 178 60% 38%;
-    --teal-soft: 178 60% 94%;
+    --success: 160 55% 32%;
+    --success-soft: 160 40% 92%;
+    --warning: 38 92% 48%;
+    --warning-soft: 42 95% 93%;
+    --danger: 0 72% 48%;
+    --danger-soft: 0 72% 95%;
+    --violet: 268 55% 48%;
+    --violet-soft: 268 45% 94%;
+    --teal: 172 70% 28%;
+    --teal-soft: 172 35% 90%;
 
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 210 20% 98%;
 
-    --border: 220 18% 90%;
-    --border-strong: 220 16% 82%;
-    --input: 220 18% 90%;
-    --ring: 218 70% 52%;
+    --border: 172 14% 88%;
+    --border-strong: 172 16% 80%;
+    --input: 172 14% 88%;
+    --ring: 176 48% 42%;
 
     --radius: 0.75rem;
 
-    --shadow-sm: 0 1px 2px hsl(222 32% 12% / 0.04);
-    --shadow-md: 0 4px 16px -4px hsl(222 32% 12% / 0.08), 0 2px 4px -2px hsl(222 32% 12% / 0.04);
-    --shadow-lg: 0 12px 40px -12px hsl(222 32% 12% / 0.12);
+    --shadow-sm: 0 1px 2px hsl(172 96% 12% / 0.06);
+    --shadow-md: 0 4px 16px -4px hsl(172 96% 12% / 0.1), 0 2px 4px -2px hsl(172 96% 12% / 0.05);
+    --shadow-lg: 0 12px 40px -12px hsl(172 96% 12% / 0.14);
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 210 20% 97%;
+    --sidebar-foreground: 172 96% 12%;
+    --sidebar-primary: 172 96% 12%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 172 14% 91%;
+    --sidebar-accent-foreground: 172 96% 12%;
+    --sidebar-border: 172 14% 86%;
+    --sidebar-ring: 176 48% 42%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 172 55% 7%;
+    --foreground: 48 33% 96%;
+    --surface: 172 48% 9%;
+    --surface-muted: 172 40% 11%;
+    --foreground-muted: 172 15% 68%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 172 48% 9%;
+    --card-foreground: 48 33% 96%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 172 48% 9%;
+    --popover-foreground: 48 33% 96%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 176 48% 46%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 172 35% 14%;
+    --secondary-foreground: 48 33% 96%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 172 30% 16%;
+    --muted-foreground: 172 12% 62%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 176 48% 46%;
+    --accent-foreground: 0 0% 100%;
+    --accent-soft: 172 35% 18%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 48 33% 96%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 172 30% 18%;
+    --input: 172 30% 18%;
+    --ring: 176 48% 46%;
+
+    --sidebar-background: 172 55% 6%;
+    --sidebar-foreground: 48 33% 96%;
+    --sidebar-primary: 176 48% 46%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 172 35% 14%;
+    --sidebar-accent-foreground: 48 33% 96%;
+    --sidebar-border: 172 30% 16%;
+    --sidebar-ring: 176 48% 46%;
   }
 }
 
@@ -127,6 +125,14 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* Marker-style highlight (neon on dark text), like the reference layout */
+  .bg-marker {
+    @apply rounded-sm px-1.5 py-0.5;
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
   .shadow-card {
     box-shadow: var(--shadow-sm);
   }
