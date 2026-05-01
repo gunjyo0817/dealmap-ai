@@ -193,15 +193,14 @@ function MatrixView({ segments }: { segments: SegmentWithStartups[] }) {
             violet: "bg-violet/15 border-violet/40 text-violet",
           };
           return (
-            <Link
+            <div
               key={s.id}
-              to={`/segments`}
               className={cn("group absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 text-[11px] font-semibold transition hover:scale-105", bg[tone])}
               style={{ left: `${x}%`, top: `${y}%`, width: size, height: size }}
               title={`${s.name} · Opp ${s.opportunity_score} · Crowd ${s.crowdedness_score}`}
             >
               <span className="px-2 text-center leading-tight">{s.name}</span>
-            </Link>
+            </div>
           );
         })}
       </div>

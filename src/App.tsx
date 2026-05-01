@@ -12,7 +12,6 @@ import StartupsPage from "./pages/Startups";
 import StartupDetail from "./pages/StartupDetail";
 import Placeholder from "./pages/Placeholder";
 import MarketMap from "./pages/MarketMap";
-import Segments from "./pages/Segments";
 import Notes from "./pages/Notes";
 import Settings from "./pages/Settings";
 
@@ -33,7 +32,7 @@ const App = () => (
               <Route path="/startups/:id" element={<StartupDetail />} />
               <Route path="/inbox" element={<Notes />} />
               <Route path="/market-map" element={<MarketMap />} />
-              <Route path="/segments" element={<Segments />} />
+              <Route path="/segments" element={<Navigate to="/market-map" replace />} />
               <Route path="/notes" element={<Navigate to="/inbox" replace />} />
               <Route path="/social-sourcing" element={<Navigate to="/market-map" replace />} />
               <Route path="/settings" element={<Settings />} />
