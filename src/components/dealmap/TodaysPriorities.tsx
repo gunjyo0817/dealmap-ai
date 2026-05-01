@@ -43,6 +43,19 @@ const ITEMS: PriorityItem[] = [
     primaryFallbackPath: "/startups",
     secondaryLabel: "Add follow-up",
   },
+  {
+    key: "sales-automation",
+    kind: "segment",
+    title: "Sales Automation",
+    matchName: "Sales Automation",
+    recommended: "Review crowdedness and defensibility",
+    reason:
+      "High crowdedness and weak differentiation across the current pipeline.",
+    accent: "warning",
+    primaryLabel: "Open market map",
+    primaryFallbackPath: "/market-map",
+    secondaryLabel: "Add research note",
+  },
 ];
 
 const accentBar: Record<PriorityItem["accent"], string> = {

@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Inbox, Network, Building2, Layers, Settings } from "lucide-react";
+import { LayoutDashboard, Inbox, Network, Building2, Settings } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 
 const items = [
@@ -7,7 +7,6 @@ const items = [
   { title: "Notes", url: "/inbox", icon: Inbox },
   { title: "Market Map", url: "/market-map", icon: Network },
   { title: "Startups", url: "/startups", icon: Building2 },
-  { title: "Segments", url: "/segments", icon: Layers },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 

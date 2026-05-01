@@ -4,12 +4,86 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { PriorityBadge, StageBadge, StatusBadge } from "@/components/dealmap/PriorityBadge";
-import { ArrowLeft, Sparkles, Plus, AlertTriangle, Lightbulb, MessageSquare, CheckCircle2, ArrowRight } from "lucide-react";
+import { ArrowLeft, Sparkles, Plus, AlertTriangle, Lightbulb, MessageSquare, CheckCircle2, ArrowRight, Layers, Swords } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { AIRecommendation } from "@/components/dealmap/AIRecommendation";
+import { useMarketSegmentDetail } from "@/hooks/useWorkspaceData";
+import type { MarketSegmentDetail, MarketStartupComparison } from "@/lib/workspace-types";
+
+function computeSegmentScore(startup: MarketStartupComparison): number {
+  const p = startup.priority === "High" ? 30 : startup.priority === "Medium" ? 15 : 0;
+  const opp = (startup.latestAnalysis?.opportunity_signals as string[] | null)?.length ?? 0;
+  const risk = (startup.latestAnalysis?.risk_signals as string[] | null)?.length ?? 0;
+  const highFu = startup.followups.filter((f) => f.priority === "High" && f.status === "open").length;
+  const diff = startup.differentiation ? 10 : 0;
+  return p + opp * 8 + diff - risk * 4 - highFu * 2;
+}
+
+function InSegmentBanner({
+  currentStartupId,
+  segmentDetail,
+}: {
+  currentStartupId: string;
+  segmentDetail: MarketSegmentDetail;
+}) {
+  const ranked = useMemo(
+    () => [...segmentDetail.startups].sort((a, b) => computeSegmentScore(b) - computeSegmentScore(a)),
+    [segmentDetail.startups],
+  );
+
+  const rank = ranked.findIndex((s) => s.id === currentStartupId) + 1;
+  const peerCount = ranked.length;
+  const isTop = rank === 1;
+  const bestPeer = ranked[0];
+  const mainThreat = segmentDetail.mainThreat;
+
+  if (peerCount === 0) return null;
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-border bg-surface px-5 py-3 shadow-card">
+      <Link
+        to="/market-map"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
+      >
+        <Layers className="h-3.5 w-3.5" />
+        {segmentDetail.segment.name}
+      </Link>
+
+      <div className="flex items-center gap-2">
+        {isTop ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-semibold text-success">
+            ★ Top performer in segment
+          </span>
+        ) : (
+          <span className="text-sm text-muted-foreground">
+            Ranked <span className="font-semibold text-foreground">#{rank}</span>{" "}
+            <span className="text-xs">of {peerCount} in segment</span>
+          </span>
+        )}
+      </div>
+
+      {!isTop && bestPeer && bestPeer.id !== currentStartupId && (
+        <div className="text-xs text-muted-foreground">
+          Best:{" "}
+          <Link to={`/startups/${bestPeer.id}`} className="font-medium text-foreground hover:text-accent">
+            {bestPeer.name}
+          </Link>
+        </div>
+      )}
+
+      {mainThreat && (
+        <div className="ml-auto flex items-center gap-1.5 text-xs">
+          <Swords className="h-3.5 w-3.5 text-danger" />
+          <span className="text-muted-foreground">Main threat:</span>
+          <span className="font-medium text-foreground">{mainThreat.name}</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function StartupDetail() {
   const { id } = useParams<{ id: string }>();
@@ -39,6 +113,22 @@ export default function StartupDetail() {
         insights: insQ.data ?? [],
         analyses: anasQ.data ?? [],
       };
+    },
+  });
+
+  const segmentId = (data?.startup?.segment as { id: string } | null)?.id ?? null;
+  const { data: segmentDetail } = useMarketSegmentDetail(segmentId);
+  const { data: segmentLLM } = useQuery<{ comparativeInsight: string; marketPosition: string } | null>({
+    queryKey: ["llm-segment-summary", segmentId],
+    enabled: !!segmentId,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+    queryFn: async () => {
+      const { data: fnData, error } = await supabase.functions.invoke("summarize-segment", {
+        body: { segmentId },
+      });
+      if (error) throw error;
+      return (fnData?.summary ?? null) as { comparativeInsight: string; marketPosition: string } | null;
     },
   });
 
@@ -113,7 +203,7 @@ export default function StartupDetail() {
             </div>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{s.summary ?? "No summary yet."}</p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              {segment && <Link to={`/segments`} className="inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent">{segment.name}</Link>}
+              {segment && <Link to="/market-map" className="inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent">{segment.name}</Link>}
               <StageBadge value={s.stage} />
               <StatusBadge value={s.status} />
               <span className="text-xs text-muted-foreground">· {s.founder ?? "Unknown founder"}</span>
@@ -139,6 +229,10 @@ export default function StartupDetail() {
           </div>
         </div>
       </div>
+
+      {segmentDetail && (
+        <InSegmentBanner currentStartupId={s.id} segmentDetail={segmentDetail} />
+      )}
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-xl border border-border bg-surface p-4 shadow-card">
@@ -180,6 +274,20 @@ export default function StartupDetail() {
       </section>
 
       <AIRecommendation startupName={s.name} />
+
+      {segmentLLM?.comparativeInsight && (
+        <div className="rounded-xl border border-border bg-surface p-5 shadow-card">
+          <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold">
+            <Lightbulb className="h-4 w-4 text-accent" />
+            Market context
+            <span className="rounded-full bg-accent/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-accent">AI</span>
+          </h3>
+          <p className="text-sm leading-relaxed text-foreground/85">{segmentLLM.comparativeInsight}</p>
+          {segmentLLM.marketPosition && (
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{segmentLLM.marketPosition}</p>
+          )}
+        </div>
+      )}
 
       {/* Middle */}
       <div className="grid gap-5 lg:grid-cols-2">
