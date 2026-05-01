@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { useSegments, useStartups } from "@/hooks/useWorkspaceData";
 import { TrendBadge, PriorityBadge, StageBadge } from "@/components/dealmap/PriorityBadge";
-import { Layers, LayoutGrid, Grid3x3, Table as TableIcon } from "lucide-react";
+import { ArrowUpRight, Layers, LayoutGrid, Grid3x3, Table as TableIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { MarketSegmentDetailSheet } from "@/components/dealmap/MarketSegmentDetailSheet";
 import type { SegmentWithStartups, StartupWithSegment } from "@/lib/workspace-types";
 
 // Mock external competitor mapping per segment name
@@ -20,8 +21,14 @@ export default function MarketMap() {
   const { data: segments = [] } = useSegments();
   const { data: startups = [] } = useStartups();
   const [view, setView] = useState<View>("board");
+  const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
 
   const unsegmented = useMemo(() => startups.filter((s) => !s.segment_id), [startups]);
+  const selectedSegment = useMemo(
+    () => segments.find((segment) => segment.id === selectedSegmentId) ?? null,
+    [segments, selectedSegmentId],
+  );
+  const openSegment = (segmentId: string) => setSelectedSegmentId(segmentId);
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-6">
@@ -48,14 +55,31 @@ export default function MarketMap() {
         </div>
       </div>
 
-      {view === "board" && <BoardView segments={segments} unsegmented={unsegmented} />}
-      {view === "matrix" && <MatrixView segments={segments} />}
-      {view === "table" && <TableView segments={segments} />}
+      {view === "board" && <BoardView segments={segments} unsegmented={unsegmented} onOpenSegment={openSegment} />}
+      {view === "matrix" && <MatrixView segments={segments} onOpenSegment={openSegment} />}
+      {view === "table" && <TableView segments={segments} onOpenSegment={openSegment} />}
+
+      <MarketSegmentDetailSheet
+        segmentId={selectedSegmentId}
+        open={!!selectedSegmentId}
+        onOpenChange={(open) => {
+          if (!open) setSelectedSegmentId(null);
+        }}
+        fallbackSegment={selectedSegment}
+      />
     </div>
   );
 }
 
-function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[]; unsegmented: StartupWithSegment[] }) {
+function BoardView({
+  segments,
+  unsegmented,
+  onOpenSegment,
+}: {
+  segments: SegmentWithStartups[];
+  unsegmented: StartupWithSegment[];
+  onOpenSegment: (segmentId: string) => void;
+}) {
   const cols = [...segments];
   return (
     <div className="flex gap-4 overflow-x-auto pb-2">
@@ -63,19 +87,47 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
         const ext = SEGMENT_EXTERNAL[s.name] ?? { external: [] };
         const pipeline = s.startups ?? [];
         return (
-          <div key={s.id} className="w-80 shrink-0 rounded-xl border border-border bg-surface shadow-card">
+          <div
+            key={s.id}
+            role="button"
+            tabIndex={0}
+            aria-label={`Open ${s.name} comparison`}
+            onClick={() => onOpenSegment(s.id)}
+            onKeyDown={(event) => {
+              if (event.target !== event.currentTarget) return;
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onOpenSegment(s.id);
+              }
+            }}
+            className="w-80 shrink-0 cursor-pointer rounded-xl border border-border bg-surface shadow-card transition hover:border-accent/45 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-accent/35"
+          >
             <div className="border-b border-border p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Layers className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-sm font-semibold">{s.name}</span>
                 </div>
-                <TrendBadge value={s.trend} />
+                <div className="flex items-center gap-1.5">
+                  <TrendBadge value={s.trend} />
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
+                </div>
               </div>
-              <div className="mt-1.5 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
-                <span>Opp {s.opportunity_score}</span>
-                <span>Crowd {s.crowdedness_score}</span>
-                <span>{pipeline.length + ext.external.length} mapped</span>
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-10 text-[10px] uppercase tracking-wider text-success">Opp</span>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-success/15">
+                    <div className="h-full rounded-full bg-success/55" style={{ width: `${s.opportunity_score}%` }} />
+                  </div>
+                  <span className="w-6 text-right font-mono text-[11px] font-semibold text-success">{s.opportunity_score}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-10 text-[10px] uppercase tracking-wider text-warning">Crowd</span>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-warning/15">
+                    <div className="h-full rounded-full bg-warning/55" style={{ width: `${s.crowdedness_score}%` }} />
+                  </div>
+                  <span className="w-6 text-right font-mono text-[11px] font-semibold text-warning">{s.crowdedness_score}</span>
+                </div>
               </div>
             </div>
 
@@ -86,7 +138,19 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-accent">
                     Our pipeline
                   </span>
-                  <span className="text-[10px] text-muted-foreground">{pipeline.length}</span>
+                  <div className="flex items-center gap-1">
+                    {pipeline.map((st) => (
+                      <div
+                        key={st.id}
+                        title={`${st.name}: ${st.priority ?? "Low"} priority`}
+                        className={cn(
+                          "h-2 w-2 rounded-full",
+                          st.priority === "High" ? "bg-success" : st.priority === "Medium" ? "bg-warning" : "bg-muted-foreground/40",
+                        )}
+                      />
+                    ))}
+                    <span className="ml-0.5 text-[10px] text-muted-foreground">{pipeline.length}</span>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   {pipeline.length === 0 && (
@@ -98,6 +162,7 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
                     <Link
                       key={st.id}
                       to={`/startups/${st.id}`}
+                      onClick={(event) => event.stopPropagation()}
                       className="block rounded-lg border border-accent/40 bg-accent-soft/40 px-3 py-2 transition hover:border-accent"
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -157,7 +222,7 @@ function BoardView({ segments, unsegmented }: { segments: SegmentWithStartups[];
   );
 }
 
-function MatrixView({ segments }: { segments: SegmentWithStartups[] }) {
+function MatrixView({ segments, onOpenSegment }: { segments: SegmentWithStartups[]; onOpenSegment: (segmentId: string) => void }) {
   // X = crowdedness, Y = opportunity (inverted so high opp is up)
   return (
     <div className="rounded-xl border border-border bg-surface p-6 shadow-card">
@@ -193,14 +258,16 @@ function MatrixView({ segments }: { segments: SegmentWithStartups[] }) {
             violet: "bg-violet/15 border-violet/40 text-violet",
           };
           return (
-            <div
+            <button
+              type="button"
               key={s.id}
-              className={cn("group absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 text-[11px] font-semibold transition hover:scale-105", bg[tone])}
+              onClick={() => onOpenSegment(s.id)}
+              className={cn("group absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 text-[11px] font-semibold transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/35", bg[tone])}
               style={{ left: `${x}%`, top: `${y}%`, width: size, height: size }}
               title={`${s.name} · Opp ${s.opportunity_score} · Crowd ${s.crowdedness_score}`}
             >
               <span className="px-2 text-center leading-tight">{s.name}</span>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -208,7 +275,7 @@ function MatrixView({ segments }: { segments: SegmentWithStartups[] }) {
   );
 }
 
-function TableView({ segments }: { segments: SegmentWithStartups[] }) {
+function TableView({ segments, onOpenSegment }: { segments: SegmentWithStartups[]; onOpenSegment: (segmentId: string) => void }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-card">
       <table className="w-full text-sm">
@@ -223,7 +290,19 @@ function TableView({ segments }: { segments: SegmentWithStartups[] }) {
         </thead>
         <tbody className="divide-y divide-border">
           {segments.map((s) => (
-            <tr key={s.id} className="hover:bg-surface-muted">
+            <tr
+              key={s.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => onOpenSegment(s.id)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onOpenSegment(s.id);
+                }
+              }}
+              className="cursor-pointer hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-inset focus:ring-accent/35"
+            >
               <td className="px-4 py-3 font-medium">{s.name}</td>
               <td className="px-4 py-3"><TrendBadge value={s.trend} /></td>
               <td className="px-4 py-3"><ScoreBar value={s.opportunity_score} tone="success" /></td>
