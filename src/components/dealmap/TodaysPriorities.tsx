@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Building2, Layers, ArrowRight, Plus, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useStartups, useSegments } from "@/hooks/useWorkspaceData";
+import { useStartups } from "@/hooks/useWorkspaceData";
 import { cn } from "@/lib/utils";
 
 type PriorityItem = {
@@ -55,8 +55,8 @@ const ITEMS: PriorityItem[] = [
     reason:
       "High crowdedness and weak differentiation across the current pipeline.",
     accent: "warning",
-    primaryLabel: "Open segment",
-    primaryFallbackPath: "/segments",
+    primaryLabel: "Open market map",
+    primaryFallbackPath: "/market-map",
     secondaryLabel: "Add research note",
   },
 ];
@@ -69,7 +69,6 @@ const accentBar: Record<PriorityItem["accent"], string> = {
 
 export function TodaysPriorities() {
   const { data: startups = [] } = useStartups();
-  const { data: segments = [] } = useSegments();
   const [done, setDone] = useState<Record<string, boolean>>({});
 
   const resolvePath = (item: PriorityItem) => {
@@ -77,7 +76,6 @@ export function TodaysPriorities() {
       const s = startups.find((x) => x.name === item.matchName);
       return s ? `/startups/${s.id}` : item.primaryFallbackPath;
     }
-    // segments page lists all; deep linking not available, fall back
     return item.primaryFallbackPath;
   };
 
