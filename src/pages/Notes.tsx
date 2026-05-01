@@ -171,7 +171,7 @@ export default function Notes() {
           <Button size="sm" variant="outline" onClick={addPasted} disabled={!pasted.trim() || isImporting}>Save to inbox</Button>
           <Button size="sm" onClick={addAndAnalyze} disabled={!pasted.trim() || isImporting}>
             <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-            {isImporting ? "Analyzing…" : "Analyze & Import to CRM"}
+            {isImporting ? "Analyzing…" : "Analyze and import"}
           </Button>
         </div>
       </div>
