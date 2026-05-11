@@ -1,109 +1,132 @@
-# dealmap-ai
+# DealMap AI
 
-Vite + React + TypeScript frontend backed by Supabase (Auth + Postgres + RLS).
+DealMap AI is a deal-flow workspace for early-stage VC teams. It turns meeting transcripts, intro notes, and CRM inputs into a structured market map and actionable follow-ups.
+
+## Product Goals
+
+- Convert fragmented notes into structured startup profiles.
+- Give the team one shared workspace to track pipeline, segments, risks, and priorities.
+- Reduce manual ops work so partners and analysts spend time on decisions, not data cleanup.
+
+## Current Features
+
+### 1) Authentication and Workspace Data Isolation
+
+- Email/password and Google OAuth sign-in.
+- Supabase Auth + Postgres backend with user-scoped workspace queries.
+
+### 2) Dashboard
+
+- Shows pipeline stage distribution, recently added startups, and recent AI insights.
+- Combines follow-up and segment data for daily prioritization.
+
+### 3) Startups (Pipeline List Management)
+
+- Startup table view.
+- Search and multi-filter support by segment, stage, and priority.
+- Drill into startup detail pages.
+
+### 4) Notes / Inbox (Ingestion + Analysis)
+
+- Paste notes manually or upload files (`txt` / `md` / `csv` / `json` / `docx` / `pdf`).
+- Save notes to inbox only, or run "Analyze and import" directly.
+- `analyze-note` tries the Supabase Edge Function first, then automatically falls back to the local heuristic analyzer.
+
+### 5) Market Map
+
+- Three views: Board / Matrix / Table.
+- Segment-level opportunity vs. crowdedness visualization with segment detail drilldowns.
+- Side-by-side view of internal pipeline and external competitors (currently system-provided mapping data).
+
+### 6) Settings
+
+- Workspace, account, AI preference, and notification settings UI.
+- Demo-oriented data export / clear / reset actions.
+
+## Tech Stack
+
+- Frontend: Vite + React + TypeScript + React Router + TanStack Query
+- UI: Tailwind + shadcn/ui + Radix
+- Data/Auth: Supabase (Auth, Postgres, Functions)
+- Charts: Recharts
 
 ## Prerequisites
 
 - Node.js 20+
 - npm 10+
-- Optional for local DB: Supabase CLI
+- Optional: Supabase CLI (for local DB and function development)
 
-## Quick start (remote Supabase)
+## Quick Start (Remote Supabase)
 
-1. Install dependencies:
-   - `npm install`
-2. Copy env file:
-   - `cp .env.example .env`
-3. Set required env vars in `.env`:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_PUBLISHABLE_KEY`
-4. Start app:
-   - `npm run dev`
+1. Install dependencies
 
-## Local Supabase (recommended for reproducible dev)
+   ```bash
+   npm install
+   ```
 
-1. Install Supabase CLI (macOS):
-   - `brew install supabase/tap/supabase`
-2. Start local stack:
-   - `supabase start`
-3. Apply migrations (rebuild local DB):
-   - `supabase db reset`
-4. Get local API URL/key:
-   - `supabase status`
-5. Set `.env`:
-   - `VITE_SUPABASE_URL` = local API URL
-   - `VITE_SUPABASE_PUBLISHABLE_KEY` = local anon key
-6. Run frontend:
-   - `npm run dev`
+2. Create the env file
 
-## Available scripts
+   ```bash
+   cp .env.example .env
+   ```
 
-- `npm run dev`: start local dev server
-- `npm run build`: production build
-- `npm run preview`: preview production build
-- `npm run lint`: run ESLint
-- `npm test`: run test suite once
-- `npm run test:watch`: run tests in watch mode
+3. Set required `.env` values
 
-## Supabase schema
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
 
-Database migrations live in `supabase/migrations`.
+4. Start the frontend
 
-Apply them with:
-- local: `supabase db reset`
-- linked remote project: `supabase db push`
+   ```bash
+   npm run dev
+   ```
 
-## Current status and next backend steps
-
-The app currently has:
-- Real Supabase Auth + DB integration
-- Frontend pages and CRUD flows
-- Mock analysis logic for AI-like outputs
-
-The app does not yet have:
-- A dedicated backend service
-- Real AI analysis pipeline (current flow uses `src/lib/mock-analyze.ts`)
-- Real CRM connectors (HubSpot/Granola APIs are not fully wired end-to-end)
-
-### Minimum path to “truly running” product
-
-1. Replace mock analysis with Supabase Edge Function:
-   - Add function under `supabase/functions/analyze-note`
-   - Call it from `src/pages/DealInbox.tsx` instead of `mockAnalyzeNote`
-   - Serve locally with `supabase functions serve analyze-note --no-verify-jwt`
-   - Deploy with `supabase functions deploy analyze-note`
-2. Add secrets for external AI provider in Supabase function env.
-3. Persist structured analysis output in existing tables (`analyses`, `insights`).
-4. Add integration token storage + sync jobs for external CRMs.
-5. Add E2E tests for auth -> create note -> analyze -> view insight.
-# DealMap AI
-
-VC deal-flow workspace built with Vite, React, Supabase, and Supabase Edge Functions.
-
-## Local Checks
-
-```bash
-npm install
-npm run lint
-npm test
-npm run build
-```
-
-## Run The App
-
-```bash
-npm run dev
-```
-
-If port `8080` is unavailable, run:
+If port `8080` is unavailable, use:
 
 ```bash
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-## Gemini Analysis Function
+## Local Supabase (Recommended for Reproducible Development)
 
-`supabase/functions/analyze-note` analyzes raw Deal Inbox notes. It uses Gemini when `GEMINI_API_KEY` is set, and falls back to the local heuristic analyzer when no key is present.
+1. Install Supabase CLI (macOS)
+
+   ```bash
+   brew install supabase/tap/supabase
+   ```
+
+2. Start the local Supabase stack
+
+   ```bash
+   supabase start
+   ```
+
+3. Rebuild and apply migrations
+
+   ```bash
+   supabase db reset
+   ```
+
+4. Get local URL/key values
+
+   ```bash
+   supabase status
+   ```
+
+5. Update `.env`
+
+- `VITE_SUPABASE_URL` = local API URL
+- `VITE_SUPABASE_PUBLISHABLE_KEY` = local anon key
+
+6. Start the frontend
+
+   ```bash
+   npm run dev
+   ```
+
+## Gemini Analysis Function (`analyze-note`)
+
+`supabase/functions/analyze-note` analyzes raw notes. If `GEMINI_API_KEY` is set, it uses Gemini. If not, it falls back to the local analyzer.
 
 Set production secrets:
 
@@ -122,3 +145,18 @@ Deploy the function:
 ```bash
 npx supabase functions deploy analyze-note --project-ref hljhwjqjhdweimehxqym
 ```
+
+## Available Scripts
+
+- `npm run dev`: start local dev server
+- `npm run build`: create production build
+- `npm run preview`: preview production build
+- `npm run lint`: run ESLint
+- `npm test`: run Vitest once
+- `npm run test:watch`: run Vitest in watch mode
+
+## Supabase Schema
+
+- Migrations live in `supabase/migrations`
+- Apply locally with `supabase db reset`
+- Apply to a linked remote project with `supabase db push`

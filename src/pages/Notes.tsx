@@ -153,10 +153,11 @@ export default function Notes() {
         <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold"><Plus className="h-4 w-4" /> Add transcript</div>
         <Textarea rows={4} value={pasted} onChange={(e) => setPasted(e.target.value)} placeholder="Paste meeting notes, call transcript, or forwarded intro..." />
         <input
+          id="transcript-file-upload"
           ref={fileInputRef}
           type="file"
           accept=".txt,.md,.csv,.json,.docx,.pdf,text/plain,text/markdown,text/csv,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
-          className="hidden"
+          className="sr-only"
           onChange={(e) => {
             const file = e.target.files?.[0] ?? null;
             void uploadTranscript(file);
@@ -164,9 +165,11 @@ export default function Notes() {
           }}
         />
         <div className="mt-2 flex justify-end gap-2">
-          <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isImporting}>
-            <Paperclip className="mr-1.5 h-3.5 w-3.5" />
-            Upload file
+          <Button size="sm" variant="outline" asChild disabled={isImporting}>
+            <label htmlFor="transcript-file-upload" className="cursor-pointer">
+              <Paperclip className="mr-1.5 h-3.5 w-3.5" />
+              Upload file
+            </label>
           </Button>
           <Button size="sm" variant="outline" onClick={addPasted} disabled={!pasted.trim() || isImporting}>Save to inbox</Button>
           <Button size="sm" onClick={addAndAnalyze} disabled={!pasted.trim() || isImporting}>
